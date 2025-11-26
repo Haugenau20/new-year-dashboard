@@ -50,37 +50,39 @@ export function NowPlaying({ player, haUrl }: NowPlayingProps) {
 
   return (
     <>
-      <div className="album-art-container">
+      <div className="w-full max-w-[600px] aspect-square rounded-[20px] overflow-hidden shadow-album">
         {imageUrl ? (
-          <img src={imageUrl} alt="Album Art" className="album-art" />
+          <img src={imageUrl} alt="Album Art" className="w-full h-full object-cover" />
         ) : (
-          <div className="album-art-placeholder">
+          <div className="w-full h-full bg-gradient-purple flex items-center justify-center text-[8rem] text-white/30">
             <span>♪</span>
           </div>
         )}
       </div>
 
-      <div className="track-info">
-        <h1 className="track-title">
+      <div className="text-center w-full max-w-[600px]">
+        <h1 className="text-5xl font-bold mb-2 text-white leading-tight xl-dashboard:text-[2.5rem]">
           {player.attributes.media_title || 'Unknown Track'}
         </h1>
-        <h2 className="track-artist">
+        <h2 className="text-3xl font-medium mb-2 text-white/80 xl-dashboard:text-2xl">
           {player.attributes.media_artist || 'Unknown Artist'}
         </h2>
-        <p className="track-album">{player.attributes.media_album_name || ''}</p>
+        <p className="text-2xl text-white/60 mb-8 xl-dashboard:text-xl">
+          {player.attributes.media_album_name || ''}
+        </p>
 
         {/* Playback Progress */}
         {duration > 0 && (
           <>
-            <div className="progress-bar">
+            <div className="w-full h-2 bg-white/10 rounded overflow-hidden mb-2">
               <div
-                className="progress-fill"
+                className="h-full bg-gradient-purple-90 transition-all duration-300"
                 style={{
                   width: `${progressPercent}%`,
                 }}
               />
             </div>
-            <div className="progress-time">
+            <div className="flex justify-between text-base text-white/60 mb-6">
               <span>{formatTime(currentPosition)}</span>
               <span>{formatTime(duration)}</span>
             </div>
@@ -88,7 +90,7 @@ export function NowPlaying({ player, haUrl }: NowPlayingProps) {
         )}
 
         {/* Playback Status */}
-        <div className="playback-status">
+        <div className="text-xl text-white/70 font-semibold">
           {player.state === 'playing' ? '▶ Playing' : '⏸ Paused'}
         </div>
       </div>

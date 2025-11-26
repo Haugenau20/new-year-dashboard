@@ -10,7 +10,7 @@ import {
 export class HomeAssistantService {
   private connection: Connection | null = null;
   private auth: Auth | null = null;
-  private reconnectTimer: NodeJS.Timeout | null = null;
+  private reconnectTimer: number | null = null;
   private subscribers: Set<(entities: HassEntities) => void> = new Set();
 
   constructor(

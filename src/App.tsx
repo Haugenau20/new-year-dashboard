@@ -5,7 +5,6 @@ import { NowPlaying } from './components/NowPlaying';
 import { QueueDisplay } from './components/QueueDisplay';
 import { SpotifyCallback } from './pages/SpotifyCallback';
 import { SpotifyService } from './services/spotify';
-import { cn } from '@/lib/utils';
 
 // Load configuration from environment variables
 const HA_URL = import.meta.env.VITE_HA_URL || '';
@@ -126,7 +125,7 @@ function App() {
     );
   }
 
-  const { mainPlayer, speakers, playlistSelector } = dashboardState;
+  const { mainPlayer } = dashboardState;
 
   return (
     <div className="w-screen h-screen bg-gradient-dark overflow-hidden relative">
@@ -166,63 +165,7 @@ function App() {
             </div>
           )}
 
-          {/* Active Speakers */}
-          <div className="bg-white/5 backdrop-blur-xs rounded-[15px] p-8 border border-white/10 lg-dashboard:min-w-[250px]">
-            <h3 className="text-xl text-white/70 mb-4 uppercase tracking-wide font-semibold">
-              Active Speakers
-            </h3>
-            <div className="flex flex-col gap-4">
-              <div
-                className={cn(
-                  "flex justify-between items-center p-4 bg-white/[0.03] rounded-[10px] border border-white/5 transition-all duration-300",
-                  speakers.kontor?.state === 'playing' && "bg-purple-primary/20 border-purple-primary/40"
-                )}
-              >
-                <span className="text-xl text-white/90">Kontor (Office)</span>
-                <span className="text-2xl">
-                  {speakers.kontor?.state === 'playing' ? '🔊' : '🔇'}
-                </span>
-              </div>
-              <div
-                className={cn(
-                  "flex justify-between items-center p-4 bg-white/[0.03] rounded-[10px] border border-white/5 transition-all duration-300",
-                  speakers.stue?.state === 'playing' && "bg-purple-primary/20 border-purple-primary/40"
-                )}
-              >
-                <span className="text-xl text-white/90">Stue (Living Room)</span>
-                <span className="text-2xl">
-                  {speakers.stue?.state === 'playing' ? '🔊' : '🔇'}
-                </span>
-              </div>
-            </div>
-          </div>
-
-          {/* Volume */}
-          {mainPlayer && (
-            <div className="bg-white/5 backdrop-blur-xs rounded-[15px] p-8 border border-white/10 lg-dashboard:min-w-[250px]">
-              <h3 className="text-xl text-white/70 mb-4 uppercase tracking-wide font-semibold">Volume</h3>
-              <div className="flex items-center gap-4">
-                <div className="flex-1 h-[10px] bg-white/10 rounded-[5px] overflow-hidden">
-                  <div
-                    className="h-full bg-gradient-purple-90 transition-all duration-300"
-                    style={{
-                      width: `${(mainPlayer.attributes.volume_level || 0) * 100}%`,
-                    }}
-                  />
-                </div>
-                <span className="text-2xl font-semibold text-white min-w-[60px] text-right">
-                  {Math.round((mainPlayer.attributes.volume_level || 0) * 100)}%
-                </span>
-              </div>
-            </div>
-          )}
         </div>
-      </div>
-
-      {/* Connection Status Indicator */}
-      <div className="fixed bottom-4 right-4 flex items-center gap-2 px-6 py-3 bg-black/60 backdrop-blur-xs rounded-[25px] text-white/80 text-sm border border-white/10">
-        <span className="w-[10px] h-[10px] rounded-full bg-[#4caf50] animate-pulse" />
-        Connected
       </div>
     </div>
   );

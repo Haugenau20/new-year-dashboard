@@ -5,7 +5,7 @@ import { NowPlaying } from './components/NowPlaying';
 import { QueueDisplay } from './components/QueueDisplay';
 import { SpotifyCallback } from './pages/SpotifyCallback';
 import { SpotifyService } from './services/spotify';
-import './App.css';
+import { cn } from '@/lib/utils';
 
 // Load configuration from environment variables
 const HA_URL = import.meta.env.VITE_HA_URL || '';
@@ -84,15 +84,15 @@ function App() {
   // Show configuration error if environment variables are missing
   if (configError) {
     return (
-      <div className="loading-screen">
-        <div className="loading-content">
-          <h2>Configuration Error</h2>
-          <p>{configError}</p>
-          <div style={{ textAlign: 'left', marginTop: '2rem', maxWidth: '500px' }}>
-            <p>To fix this:</p>
-            <ol style={{ lineHeight: '1.8' }}>
-              <li>Copy <code>.env.example</code> to <code>.env</code></li>
-              <li>Fill in your credentials in the <code>.env</code> file</li>
+      <div className="flex items-center justify-center min-h-screen bg-gradient-dark p-8">
+        <div className="bg-white/5 backdrop-blur-xs rounded-[20px] p-12 max-w-[500px] w-full border border-white/10">
+          <h2 className="text-3xl text-white mb-2">Configuration Error</h2>
+          <p className="text-white/60 mb-8">{configError}</p>
+          <div className="text-left">
+            <p className="text-white/80 mb-2">To fix this:</p>
+            <ol className="text-white/70 leading-[1.8] list-decimal list-inside space-y-2">
+              <li>Copy <code className="bg-white/10 px-2 py-1 rounded">.env.example</code> to <code className="bg-white/10 px-2 py-1 rounded">.env</code></li>
+              <li>Fill in your credentials in the <code className="bg-white/10 px-2 py-1 rounded">.env</code> file</li>
               <li>Restart the dev server</li>
             </ol>
           </div>
@@ -104,21 +104,21 @@ function App() {
   // Main dashboard
   if (!dashboardState.connected) {
     return (
-      <div className="loading-screen">
-        <div className="loading-content">
-          <div className="spinner"></div>
+      <div className="flex items-center justify-center min-h-screen bg-gradient-dark">
+        <div className="text-center">
+          <div className="w-[60px] h-[60px] border-4 border-white/10 border-t-purple-primary rounded-full animate-spin mx-auto mb-8" />
           {dashboardState.error ? (
             <>
-              <h2>Connection Error</h2>
-              <p>{dashboardState.error}</p>
-              <p style={{ marginTop: '1rem', fontSize: '0.9rem', color: 'rgba(255, 255, 255, 0.6)' }}>
+              <h2 className="text-white mb-2">Connection Error</h2>
+              <p className="text-white/60">{dashboardState.error}</p>
+              <p className="mt-4 text-sm text-white/60">
                 Check your .env file and restart the dev server
               </p>
             </>
           ) : (
             <>
-              <h2>Connecting to Home Assistant...</h2>
-              <p>{HA_URL}</p>
+              <h2 className="text-white mb-2">Connecting to Home Assistant...</h2>
+              <p className="text-white/60">{HA_URL}</p>
             </>
           )}
         </div>
@@ -129,36 +129,37 @@ function App() {
   const { mainPlayer, speakers, playlistSelector } = dashboardState;
 
   return (
-    <div className="dashboard">
-      <div className="main-content">
+    <div className="w-screen h-screen bg-gradient-dark overflow-hidden relative">
+      <div className="grid grid-cols-[1fr_400px] h-full gap-8 p-8 xl-dashboard:grid-cols-[1fr_350px] lg-dashboard:grid-cols-1 lg-dashboard:grid-rows-[1fr_auto]">
         {/* Currently Playing - Large Album Art Section */}
-        <div className="now-playing">
+        <div className="flex flex-col items-center justify-center gap-8 bg-white/[0.02] rounded-[20px] p-12 border border-white/5">
           {mainPlayer?.state === 'playing' || mainPlayer?.state === 'paused' ? (
             <NowPlaying player={mainPlayer} haUrl={HA_URL} />
           ) : (
-            <div className="no-playback">
-              <div className="no-playback-icon">♪</div>
-              <h2>No music playing</h2>
-              <p>Start playing music to see it here</p>
+            <div className="flex flex-col items-center justify-center text-white/40">
+              <div className="text-[8rem] mb-4">♪</div>
+              <h2 className="text-4xl mb-2">No music playing</h2>
+              <p className="text-xl">Start playing music to see it here</p>
             </div>
           )}
         </div>
 
         {/* Sidebar - Playlist and Speaker Status */}
-        <div className="sidebar">
+        <div className="flex flex-col gap-8 py-8 lg-dashboard:flex-row lg-dashboard:overflow-x-auto">
           {/* Spotify Queue and Playlist */}
           {spotifyState.isAuthenticated ? (
             <QueueDisplay queue={spotifyState.queue} playlist={spotifyState.playlist} />
           ) : (
-            <div className="info-card">
-              <h3>Spotify Queue</h3>
-              <p style={{ marginBottom: '1rem', color: 'rgba(255, 255, 255, 0.7)' }}>
+            <div className="bg-white/5 backdrop-blur-xs rounded-[15px] p-8 border border-white/10 lg-dashboard:min-w-[250px]">
+              <h3 className="text-xl text-white/70 mb-4 uppercase tracking-wide font-semibold">
+                Spotify Queue
+              </h3>
+              <p className="mb-4 text-white/70">
                 Connect to Spotify to see the queue
               </p>
               <button
                 onClick={() => spotifyService?.startAuthFlow()}
-                className="connect-button"
-                style={{ fontSize: '0.9rem', padding: '0.75rem' }}
+                className="px-4 py-3 rounded-lg bg-gradient-purple text-white text-sm font-semibold hover:-translate-y-0.5 transition-transform"
               >
                 Connect Spotify
               </button>
@@ -166,22 +167,30 @@ function App() {
           )}
 
           {/* Active Speakers */}
-          <div className="info-card">
-            <h3>Active Speakers</h3>
-            <div className="speakers-list">
+          <div className="bg-white/5 backdrop-blur-xs rounded-[15px] p-8 border border-white/10 lg-dashboard:min-w-[250px]">
+            <h3 className="text-xl text-white/70 mb-4 uppercase tracking-wide font-semibold">
+              Active Speakers
+            </h3>
+            <div className="flex flex-col gap-4">
               <div
-                className={`speaker-item ${speakers.kontor?.state === 'playing' ? 'active' : ''}`}
+                className={cn(
+                  "flex justify-between items-center p-4 bg-white/[0.03] rounded-[10px] border border-white/5 transition-all duration-300",
+                  speakers.kontor?.state === 'playing' && "bg-purple-primary/20 border-purple-primary/40"
+                )}
               >
-                <span className="speaker-name">Kontor (Office)</span>
-                <span className="speaker-status">
+                <span className="text-xl text-white/90">Kontor (Office)</span>
+                <span className="text-2xl">
                   {speakers.kontor?.state === 'playing' ? '🔊' : '🔇'}
                 </span>
               </div>
               <div
-                className={`speaker-item ${speakers.stue?.state === 'playing' ? 'active' : ''}`}
+                className={cn(
+                  "flex justify-between items-center p-4 bg-white/[0.03] rounded-[10px] border border-white/5 transition-all duration-300",
+                  speakers.stue?.state === 'playing' && "bg-purple-primary/20 border-purple-primary/40"
+                )}
               >
-                <span className="speaker-name">Stue (Living Room)</span>
-                <span className="speaker-status">
+                <span className="text-xl text-white/90">Stue (Living Room)</span>
+                <span className="text-2xl">
                   {speakers.stue?.state === 'playing' ? '🔊' : '🔇'}
                 </span>
               </div>
@@ -190,18 +199,18 @@ function App() {
 
           {/* Volume */}
           {mainPlayer && (
-            <div className="info-card">
-              <h3>Volume</h3>
-              <div className="volume-display">
-                <div className="volume-bar">
+            <div className="bg-white/5 backdrop-blur-xs rounded-[15px] p-8 border border-white/10 lg-dashboard:min-w-[250px]">
+              <h3 className="text-xl text-white/70 mb-4 uppercase tracking-wide font-semibold">Volume</h3>
+              <div className="flex items-center gap-4">
+                <div className="flex-1 h-[10px] bg-white/10 rounded-[5px] overflow-hidden">
                   <div
-                    className="volume-fill"
+                    className="h-full bg-gradient-purple-90 transition-all duration-300"
                     style={{
                       width: `${(mainPlayer.attributes.volume_level || 0) * 100}%`,
                     }}
                   />
                 </div>
-                <span className="volume-text">
+                <span className="text-2xl font-semibold text-white min-w-[60px] text-right">
                   {Math.round((mainPlayer.attributes.volume_level || 0) * 100)}%
                 </span>
               </div>
@@ -211,8 +220,8 @@ function App() {
       </div>
 
       {/* Connection Status Indicator */}
-      <div className="connection-status">
-        <span className="status-dot connected"></span>
+      <div className="fixed bottom-4 right-4 flex items-center gap-2 px-6 py-3 bg-black/60 backdrop-blur-xs rounded-[25px] text-white/80 text-sm border border-white/10">
+        <span className="w-[10px] h-[10px] rounded-full bg-[#4caf50] animate-pulse" />
         Connected
       </div>
     </div>

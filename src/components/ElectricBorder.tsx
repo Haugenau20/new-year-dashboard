@@ -1,187 +1,147 @@
-// CREDIT
-// Component inspired by @BalintFerenczy on X
-// https://codepen.io/BalintFerenczy/pen/KwdoyEN
+import React, { CSSProperties, PropsWithChildren, useEffect, useId, useLayoutEffect, useRef } from 'react';
 
-import { useEffect, useRef, CSSProperties } from 'react';
+import './ElectricBorder.css';
 
-interface ElectricBorderProps {
-  children: React.ReactNode;
+type ElectricBorderProps = PropsWithChildren<{
   color?: string;
   speed?: number;
   chaos?: number;
   thickness?: number;
-  style?: CSSProperties;
   className?: string;
-}
+  style?: CSSProperties;
+}>;
 
-export function ElectricBorder({
+const ElectricBorder: React.FC<ElectricBorderProps> = ({
   children,
-  color = '#7df9ff',
+  color = '#5227FF',
   speed = 1,
-  chaos = 0.5,
+  chaos = 1,
   thickness = 2,
-  style = {},
-  className = '',
-}: ElectricBorderProps) {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const containerRef = useRef<HTMLDivElement>(null);
-  const animationRef = useRef<number>();
+  className,
+  style
+}: ElectricBorderProps) => {
+  const rawId = useId().replace(/[:]/g, '');
+  const filterId = `turbulent-displace-${rawId}`;
+  const svgRef = useRef<SVGSVGElement | null>(null);
+  const rootRef = useRef<HTMLDivElement | null>(null);
+  const strokeRef = useRef<HTMLDivElement | null>(null);
 
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    const container = containerRef.current;
-    if (!canvas || !container) return;
+  const updateAnim = () => {
+    const svg = svgRef.current;
+    const host = rootRef.current;
+    if (!svg || !host) return;
 
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-
-    const padding = 20; // Extra space for the border to flow freely
-
-    const updateSize = () => {
-      const rect = container.getBoundingClientRect();
-      canvas.width = rect.width + padding * 2;
-      canvas.height = rect.height + padding * 2;
-    };
-
-    updateSize();
-    window.addEventListener('resize', updateSize);
-
-    let frame = 0;
-    const points: { x: number; y: number; vx: number; vy: number }[] = [];
-    const numPoints = 30;
-
-    // Initialize points around the border (accounting for padding)
-    const innerWidth = canvas.width - padding * 2;
-    const innerHeight = canvas.height - padding * 2;
-
-    for (let i = 0; i < numPoints; i++) {
-      const progress = i / numPoints;
-      const perimeter = 2 * (innerWidth + innerHeight);
-      const distance = progress * perimeter;
-
-      let x, y;
-      if (distance < innerWidth) {
-        x = padding + distance;
-        y = padding;
-      } else if (distance < innerWidth + innerHeight) {
-        x = padding + innerWidth;
-        y = padding + (distance - innerWidth);
-      } else if (distance < 2 * innerWidth + innerHeight) {
-        x = padding + innerWidth - (distance - innerWidth - innerHeight);
-        y = padding + innerHeight;
-      } else {
-        x = padding;
-        y = padding + innerHeight - (distance - 2 * innerWidth - innerHeight);
-      }
-
-      points.push({
-        x,
-        y,
-        vx: (Math.random() - 0.5) * chaos,
-        vy: (Math.random() - 0.5) * chaos,
-      });
+    if (strokeRef.current) {
+      strokeRef.current.style.filter = `url(#${filterId})`;
     }
 
-    const animate = () => {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
+    const width = Math.max(1, Math.round(host.clientWidth || host.getBoundingClientRect().width || 0));
+    const height = Math.max(1, Math.round(host.clientHeight || host.getBoundingClientRect().height || 0));
 
-      // Update points with chaos
-      points.forEach((point, i) => {
-        const progress = i / numPoints;
-        const perimeter = 2 * (innerWidth + innerHeight);
-        const baseDistance = progress * perimeter;
+    const dyAnims = Array.from(svg.querySelectorAll<SVGAnimateElement>('feOffset > animate[attributeName="dy"]'));
+    if (dyAnims.length >= 2) {
+      dyAnims[0].setAttribute('values', `${height}; 0`);
+      dyAnims[1].setAttribute('values', `0; -${height}`);
+    }
 
-        let baseX, baseY;
-        if (baseDistance < innerWidth) {
-          baseX = padding + baseDistance;
-          baseY = padding;
-        } else if (baseDistance < innerWidth + innerHeight) {
-          baseX = padding + innerWidth;
-          baseY = padding + (baseDistance - innerWidth);
-        } else if (baseDistance < 2 * innerWidth + innerHeight) {
-          baseX = padding + innerWidth - (baseDistance - innerWidth - innerHeight);
-          baseY = padding + innerHeight;
-        } else {
-          baseX = padding;
-          baseY = padding + innerHeight - (baseDistance - 2 * innerWidth - innerHeight);
+    const dxAnims = Array.from(svg.querySelectorAll<SVGAnimateElement>('feOffset > animate[attributeName="dx"]'));
+    if (dxAnims.length >= 2) {
+      dxAnims[0].setAttribute('values', `${width}; 0`);
+      dxAnims[1].setAttribute('values', `0; -${width}`);
+    }
+
+    const baseDur = 6;
+    const dur = Math.max(0.001, baseDur / (speed || 1));
+    [...dyAnims, ...dxAnims].forEach(a => a.setAttribute('dur', `${dur}s`));
+
+    const disp = svg.querySelector('feDisplacementMap');
+    if (disp) disp.setAttribute('scale', String(30 * (chaos || 1)));
+
+    const filterEl = svg.querySelector<SVGFilterElement>(`#${CSS.escape(filterId)}`);
+    if (filterEl) {
+      filterEl.setAttribute('x', '-200%');
+      filterEl.setAttribute('y', '-200%');
+      filterEl.setAttribute('width', '500%');
+      filterEl.setAttribute('height', '500%');
+    }
+
+    requestAnimationFrame(() => {
+      [...dyAnims, ...dxAnims].forEach((a: any) => {
+        if (typeof a.beginElement === 'function') {
+          try {
+            a.beginElement();
+          } catch {}
         }
-
-        // Add velocity for chaos
-        point.x += point.vx * speed;
-        point.y += point.vy * speed;
-
-        // Dampen velocity
-        point.vx *= 0.95;
-        point.vy *= 0.95;
-
-        // Add new random velocity
-        point.vx += (Math.random() - 0.5) * chaos * 0.5;
-        point.vy += (Math.random() - 0.5) * chaos * 0.5;
-
-        // Pull back to base position
-        point.x += (baseX - point.x) * 0.1;
-        point.y += (baseY - point.y) * 0.1;
       });
+    });
+  };
 
-      // Draw glowing line connecting points
-      ctx.shadowBlur = 10;
-      ctx.shadowColor = color;
-      ctx.strokeStyle = color;
-      ctx.lineWidth = thickness;
-      ctx.lineCap = 'round';
-      ctx.lineJoin = 'round';
+  useEffect(() => {
+    updateAnim();
+  }, [speed, chaos]);
 
-      ctx.beginPath();
-      ctx.moveTo(points[0].x, points[0].y);
+  useLayoutEffect(() => {
+    if (!rootRef.current) return;
+    const ro = new ResizeObserver(() => updateAnim());
+    ro.observe(rootRef.current);
+    updateAnim();
+    return () => ro.disconnect();
+  }, []);
 
-      for (let i = 1; i < points.length; i++) {
-        ctx.lineTo(points[i].x, points[i].y);
-      }
-      ctx.closePath();
-      ctx.stroke();
-
-      // Draw brighter inner glow
-      ctx.shadowBlur = 5;
-      ctx.lineWidth = thickness * 0.5;
-      ctx.strokeStyle = color;
-      ctx.stroke();
-
-      frame++;
-      animationRef.current = requestAnimationFrame(animate);
-    };
-
-    animate();
-
-    return () => {
-      window.removeEventListener('resize', updateSize);
-      if (animationRef.current) {
-        cancelAnimationFrame(animationRef.current);
-      }
-    };
-  }, [color, speed, chaos, thickness]);
+  const vars: CSSProperties = {
+    ['--electric-border-color' as any]: color,
+    ['--eb-border-width' as any]: `${thickness}px`
+  };
 
   return (
-    <div
-      ref={containerRef}
-      className={className}
-      style={{
-        position: 'relative',
-        ...style,
-      }}
-    >
-      <canvas
-        ref={canvasRef}
-        style={{
-          position: 'absolute',
-          top: '-20px',
-          left: '-20px',
-          width: 'calc(100% + 40px)',
-          height: 'calc(100% + 40px)',
-          pointerEvents: 'none',
-          zIndex: 1,
-        }}
-      />
-      <div style={{ position: 'relative', zIndex: 2 }}>{children}</div>
+    <div ref={rootRef} className={`electric-border ${className ?? ''}`} style={{ ...vars, ...style }}>
+      <svg ref={svgRef} className="eb-svg" aria-hidden focusable="false">
+        <defs>
+          <filter id={filterId} colorInterpolationFilters="sRGB" x="-20%" y="-20%" width="140%" height="140%">
+            <feTurbulence type="turbulence" baseFrequency="0.02" numOctaves="10" result="noise1" seed="1" />
+            <feOffset in="noise1" dx="0" dy="0" result="offsetNoise1">
+              <animate attributeName="dy" values="700; 0" dur="6s" repeatCount="indefinite" calcMode="linear" />
+            </feOffset>
+
+            <feTurbulence type="turbulence" baseFrequency="0.02" numOctaves="10" result="noise2" seed="1" />
+            <feOffset in="noise2" dx="0" dy="0" result="offsetNoise2">
+              <animate attributeName="dy" values="0; -700" dur="6s" repeatCount="indefinite" calcMode="linear" />
+            </feOffset>
+
+            <feTurbulence type="turbulence" baseFrequency="0.02" numOctaves="10" result="noise1" seed="2" />
+            <feOffset in="noise1" dx="0" dy="0" result="offsetNoise3">
+              <animate attributeName="dx" values="490; 0" dur="6s" repeatCount="indefinite" calcMode="linear" />
+            </feOffset>
+
+            <feTurbulence type="turbulence" baseFrequency="0.02" numOctaves="10" result="noise2" seed="2" />
+            <feOffset in="noise2" dx="0" dy="0" result="offsetNoise4">
+              <animate attributeName="dx" values="0; -490" dur="6s" repeatCount="indefinite" calcMode="linear" />
+            </feOffset>
+
+            <feComposite in="offsetNoise1" in2="offsetNoise2" result="part1" />
+            <feComposite in="offsetNoise3" in2="offsetNoise4" result="part2" />
+            <feBlend in="part1" in2="part2" mode="color-dodge" result="combinedNoise" />
+            <feDisplacementMap
+              in="SourceGraphic"
+              in2="combinedNoise"
+              scale="30"
+              xChannelSelector="R"
+              yChannelSelector="B"
+            />
+          </filter>
+        </defs>
+      </svg>
+
+      <div className="eb-layers">
+        <div ref={strokeRef} className="eb-stroke" />
+        <div className="eb-glow-1" />
+        <div className="eb-glow-2" />
+        <div className="eb-background-glow" />
+      </div>
+
+      <div className="eb-content">{children}</div>
     </div>
   );
-}
+};
+
+export default ElectricBorder;

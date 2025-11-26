@@ -1,6 +1,7 @@
 import { SpotifyQueue, SpotifyPlaylist, SpotifyTrack } from '../types/spotify';
 import { SPECIAL_SONGS } from '../config/specialSongs';
-import { ElectricBorder } from './ElectricBorder';
+import ElectricBorder from './ElectricBorder';
+import { cn } from '@/lib/utils';
 
 interface QueueDisplayProps {
   queue: SpotifyQueue | null;
@@ -34,22 +35,24 @@ export function QueueDisplay({ queue, playlist }: QueueDisplayProps) {
   const upcomingTracks = queue?.queue.slice(0, 5) || [];
 
   return (
-    <div className="queue-section">
+    <div className="flex flex-col gap-8">
       {/* Playlist Info */}
       {playlist && (
-        <div className="info-card playlist-card">
-          <h3>Current Playlist</h3>
-          <div className="playlist-info">
+        <div className="bg-white/5 backdrop-blur-xs rounded-[15px] p-8 border border-white/10">
+          <h3 className="text-xl text-white/70 mb-4 uppercase tracking-wide font-semibold">
+            Current Playlist
+          </h3>
+          <div className="flex items-center gap-4">
             {playlist.images[0] && (
               <img
                 src={playlist.images[0].url}
                 alt={playlist.name}
-                className="playlist-cover"
+                className="w-20 h-20 rounded-lg object-cover"
               />
             )}
-            <div className="playlist-details">
-              <p className="playlist-name">{playlist.name}</p>
-              <p className="playlist-tracks">{playlist.tracks.total} tracks</p>
+            <div className="flex-1">
+              <p className="text-2xl text-white font-semibold">{playlist.name}</p>
+              <p className="text-base text-white/60">{playlist.tracks.total} tracks</p>
             </div>
           </div>
         </div>
@@ -57,33 +60,47 @@ export function QueueDisplay({ queue, playlist }: QueueDisplayProps) {
 
       {/* Queue */}
       {upcomingTracks.length > 0 && (
-        <div className="info-card queue-card">
-          <h3>Up Next</h3>
-          <div className="queue-list">
+        <div className="bg-white/5 backdrop-blur-xs rounded-[15px] p-8 border border-white/10">
+          <h3 className="text-xl text-white/70 mb-4 uppercase tracking-wide font-semibold">
+            Up Next
+          </h3>
+          <div className="flex flex-col gap-6 overflow-visible">
             {upcomingTracks.map((track, index) => {
               const { isSpecial, label } = isSpecialSong(track);
 
               const queueItemContent = (
                 <div
-                  className={`queue-item ${isSpecial ? 'special-song' : ''}`}
+                  className={cn(
+                    "flex items-center gap-3 p-3 bg-white/[0.03] rounded-lg transition-colors duration-200 relative",
+                    "hover:bg-white/5",
+                    isSpecial && "bg-gradient-gold shadow-gold hover:bg-gradient-gold-hover hover:shadow-gold-hover"
+                  )}
                   title={isSpecial ? label || 'Special Song' : undefined}
                 >
-                  <span className="queue-number">{index + 1}</span>
-                  {isSpecial && <span className="special-badge">⭐</span>}
+                  <span className="text-base text-white/50 font-semibold min-w-[20px]">
+                    {index + 1}
+                  </span>
+                  {isSpecial && (
+                    <span className="absolute top-2 right-2 text-xl animate-sparkle">⭐</span>
+                  )}
                   {track.album.images[2] && (
                     <img
                       src={track.album.images[2].url}
                       alt={track.name}
-                      className="queue-thumbnail"
+                      className="w-10 h-10 rounded object-cover"
                     />
                   )}
-                  <div className="queue-track-info">
-                    <p className="queue-track-name">{track.name}</p>
-                    <p className="queue-track-artist">
+                  <div className="flex-1 min-w-0">
+                    <p className="text-[0.95rem] text-white/90 whitespace-nowrap overflow-hidden text-ellipsis">
+                      {track.name}
+                    </p>
+                    <p className="text-[0.85rem] text-white/60 whitespace-nowrap overflow-hidden text-ellipsis">
                       {track.artists.map((a) => a.name).join(', ')}
                     </p>
                     {isSpecial && label && (
-                      <p className="special-label">{label}</p>
+                      <p className="text-xs text-gold-light font-semibold uppercase tracking-wider mt-1">
+                        {label}
+                      </p>
                     )}
                   </div>
                 </div>

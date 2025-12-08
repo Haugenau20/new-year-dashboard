@@ -13,6 +13,42 @@ interface SpotifyState {
 
 const POLL_INTERVAL = 3000; // Poll every 3 seconds
 
+/**
+ * Compare Spotify playback states to detect actual changes
+ */
+function isSpotifyStateEqual(
+  prev: SpotifyPlaybackState | null,
+  next: SpotifyPlaybackState | null
+): boolean {
+  if (prev === next) return true;
+  if (!prev || !next) return prev === next;
+
+  // Only compare meaningful state - NOT progress_ms (that changes every poll)
+  return (
+    prev.is_playing === next.is_playing &&
+    prev.item?.uri === next.item?.uri &&
+    prev.context?.uri === next.context?.uri
+  );
+}
+
+/**
+ * Compare Spotify queues to detect actual changes
+ */
+function isQueueEqual(prev: SpotifyQueue | null, next: SpotifyQueue | null): boolean {
+  if (prev === next) return true;
+  if (!prev || !next) return prev === next;
+
+  if (prev.queue.length !== next.queue.length) return false;
+
+  // Compare first 5 tracks (most relevant for queue display)
+  const compareCount = Math.min(5, prev.queue.length);
+  for (let i = 0; i < compareCount; i++) {
+    if (prev.queue[i]?.uri !== next.queue[i]?.uri) return false;
+  }
+
+  return true;
+}
+
 export function useSpotify(spotifyService: SpotifyService | null) {
   const [state, setState] = useState<SpotifyState>({
     playback: null,
@@ -57,28 +93,43 @@ export function useSpotify(spotifyService: SpotifyService | null) {
           }
         }
 
-        setState((prev) => ({
-          ...prev,
-          playback,
-          queue,
-          playlist,
-          isLoading: false,
-          error: null,
-        }));
+        // Only update state if data actually changed
+        setState((prev) => {
+          const playbackChanged = !isSpotifyStateEqual(prev.playback, playback);
+          const queueChanged = !isQueueEqual(prev.queue, queue);
+          const playlistChanged = prev.playlist?.id !== playlist?.id;
 
-        console.log('Spotify data updated:', {
-          isPlaying: playback?.is_playing,
-          track: playback?.item?.name,
-          queueLength: queue?.queue.length,
-          playlist: playlist?.name,
+          // If nothing changed, return previous state (prevents re-render)
+          if (!playbackChanged && !queueChanged && !playlistChanged) {
+            return prev;
+          }
+
+          // Log only when something actually changed
+          if (process.env.NODE_ENV === 'development') {
+            if (playbackChanged) {
+              console.log('🎵 Track changed:', playback?.item?.name);
+            }
+            if (queueChanged) {
+              console.log('📋 Queue updated:', queue?.queue.length, 'tracks');
+            }
+          }
+
+          return {
+            ...prev,
+            playback,
+            queue,
+            playlist,
+            isLoading: false,
+            error: null,
+          };
         });
       } catch (error) {
         if (!isMounted) return;
-        console.error('Error fetching Spotify data:', error);
+        // Silently handle errors - they may be expected (e.g., missing playlist)
         setState((prev) => ({
           ...prev,
           isLoading: false,
-          error: error instanceof Error ? error.message : 'Failed to fetch Spotify data',
+          error: null,
         }));
       }
     };

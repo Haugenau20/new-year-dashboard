@@ -170,7 +170,7 @@ export class SpotifyService {
     try {
       return await this.spotifyRequest<SpotifyPlaylist>(`/playlists/${playlistId}`);
     } catch (error) {
-      console.error('Error fetching playlist:', error);
+      // Silently fail - playlist may not be available or accessible
       return null;
     }
   }

@@ -33,7 +33,8 @@ export default {
       backdropBlur: { xs: '10px' },
       screens: {
         'xl-dashboard': '1600px',
-        'lg-dashboard': '1200px',
+        'lg-dashboard': { 'max': '1100px' },
+        'sm-dashboard': { 'max': '1280px' },
       },
     },
   },

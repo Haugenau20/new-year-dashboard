@@ -25,27 +25,47 @@ export function useHomeAssistant(url: string, token: string) {
   const updateEntities = useCallback((entities: HassEntities) => {
     const mainPlayer = entities[ENTITY_IDS.MAIN_PLAYER] as MediaPlayerEntity;
 
-    // Log updates for debugging
-    if (mainPlayer) {
-      console.log('Media player update:', {
-        state: mainPlayer.state,
-        track: mainPlayer.attributes.media_title,
-        position: mainPlayer.attributes.media_position,
-        last_updated: mainPlayer.last_updated,
-      });
-    }
+    setState((prevState) => {
+      const prevPlayer = prevState.mainPlayer;
 
-    setState((prevState) => ({
-      ...prevState,
-      mainPlayer: mainPlayer || null,
-      speakers: {
-        kontor: (entities[ENTITY_IDS.KONTOR_SPEAKER] as MediaPlayerEntity) || null,
-        stue: (entities[ENTITY_IDS.STUE_SPEAKER] as MediaPlayerEntity) || null,
-      },
-      playlistSelector: (entities[ENTITY_IDS.PLAYLIST_SELECTOR] as InputSelectEntity) || null,
-      connected: true,
-      error: null,
-    }));
+      // Check if meaningful properties changed (not just position)
+      if (prevPlayer && mainPlayer) {
+        const stateUnchanged = (
+          prevPlayer.state === mainPlayer.state &&
+          prevPlayer.attributes.media_title === mainPlayer.attributes.media_title &&
+          prevPlayer.attributes.media_artist === mainPlayer.attributes.media_artist &&
+          prevPlayer.attributes.entity_picture === mainPlayer.attributes.entity_picture &&
+          prevPlayer.attributes.media_duration === mainPlayer.attributes.media_duration
+        );
+
+        // If only position changed, don't update state (NowPlaying handles position internally)
+        if (stateUnchanged) {
+          return prevState;
+        }
+
+        // Log when meaningful changes occur
+        if (process.env.NODE_ENV === 'development') {
+          const stateChanged = prevPlayer.state !== mainPlayer.state;
+          const trackChanged = prevPlayer.attributes.media_title !== mainPlayer.attributes.media_title;
+
+          if (stateChanged || trackChanged) {
+            console.log('🏠 HA update:', mainPlayer.state, '-', mainPlayer.attributes.media_title);
+          }
+        }
+      }
+
+      return {
+        ...prevState,
+        mainPlayer: mainPlayer || null,
+        speakers: {
+          kontor: (entities[ENTITY_IDS.KONTOR_SPEAKER] as MediaPlayerEntity) || null,
+          stue: (entities[ENTITY_IDS.STUE_SPEAKER] as MediaPlayerEntity) || null,
+        },
+        playlistSelector: (entities[ENTITY_IDS.PLAYLIST_SELECTOR] as InputSelectEntity) || null,
+        connected: true,
+        error: null,
+      };
+    });
   }, []);
 
   useEffect(() => {

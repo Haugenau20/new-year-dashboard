@@ -65,7 +65,7 @@ export class HomeAssistantService {
       this.connect().catch((error) => {
         console.error('Reconnection attempt failed:', error);
       });
-    }, 5000);
+    }, 5000) as unknown as number;
   }
 
   subscribe(callback: (entities: HassEntities) => void): () => void {

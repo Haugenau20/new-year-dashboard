@@ -28,7 +28,7 @@ export const NowPlaying = memo(function NowPlaying({ spotifyPlayback }: NowPlayi
     ? Math.floor(spotifyPlayback.progress_ms / 1000)
     : 0;
 
-  const [currentPosition, setCurrentPosition] = useState(initialPosition);
+  const [_currentPosition, setCurrentPosition] = useState(initialPosition);
 
   // Update position every second when playing
   useEffect(() => {
@@ -55,24 +55,24 @@ export const NowPlaying = memo(function NowPlaying({ spotifyPlayback }: NowPlayi
     setCurrentPosition(initialPosition);
   }, [initialPosition]);
 
-  const duration = spotifyPlayback?.item?.duration_ms
-    ? Math.floor(spotifyPlayback.item.duration_ms / 1000)
-    : 0;
-  const progressPercent = duration > 0 ? (currentPosition / duration) * 100 : 0;
+  // const duration = spotifyPlayback?.item?.duration_ms
+  //   ? Math.floor(spotifyPlayback.item.duration_ms / 1000)
+  //   : 0;
+  // const progressPercent = duration > 0 ? (currentPosition / duration) * 100 : 0;
 
-  const formatTime = (seconds: number) => {
-    const mins = Math.floor(seconds / 60);
-    const secs = Math.floor(seconds % 60);
-    return `${mins}:${secs.toString().padStart(2, '0')}`;
-  };
+  // const formatTime = (seconds: number) => {
+  //   const mins = Math.floor(seconds / 60);
+  //   const secs = Math.floor(seconds % 60);
+  //   return `${mins}:${secs.toString().padStart(2, '0')}`;
+  // };
 
   // Get data from Spotify playback
   const track = spotifyPlayback?.item;
   const imageUrl = track?.album.images[0]?.url || null;
   const title = track?.name || 'Unknown Track';
   const artist = track?.artists[0]?.name || 'Unknown Artist';
-  const albumName = track?.album.name || '';
-  const isPlaying = spotifyPlayback?.is_playing || false;
+  // const albumName = track?.album.name || '';
+  // const isPlaying = spotifyPlayback?.is_playing || false;
 
   return (
     <>

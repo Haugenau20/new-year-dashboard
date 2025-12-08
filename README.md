@@ -106,9 +106,38 @@ const ENTITY_IDS = {
 };
 ```
 
-## Deployment on Raspberry Pi
+## Deployment
 
-### Option 1: Direct Deployment
+### GitHub Pages Deployment
+
+The site is configured to automatically deploy to GitHub Pages when you push to the `main` branch.
+
+#### Initial Setup:
+
+1. Go to your repository settings on GitHub
+2. Navigate to **Settings** → **Pages**
+3. Under **Source**, select **GitHub Actions**
+4. Push your changes to the `main` branch
+
+The GitHub Actions workflow will automatically:
+- Build the project
+- Deploy to GitHub Pages
+- Make the site available at `https://haugenau20.github.io/new-year-dashboard/`
+
+#### Manual Deployment:
+
+If you prefer to deploy manually without GitHub Actions:
+
+```bash
+npm install -g gh-pages
+npm run deploy
+```
+
+Note: Environment variables (.env) are not included in the GitHub Pages deployment. You'll need to configure API keys and tokens separately if your deployment requires them at runtime.
+
+### Deployment on Raspberry Pi
+
+#### Option 1: Direct Deployment
 
 1. Build the project:
    ```bash

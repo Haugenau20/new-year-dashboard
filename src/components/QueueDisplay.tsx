@@ -2,7 +2,6 @@ import { memo } from 'react';
 import { SpotifyQueue, SpotifyTrack } from '../types/spotify';
 import { SPECIAL_SONGS } from '../config/specialSongs';
 import ElectricBorder from './ElectricBorder';
-import { cn } from '@/lib/utils';
 
 interface QueueDisplayProps {
   queue: SpotifyQueue | null;

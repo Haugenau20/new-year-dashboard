@@ -1,0 +1,470 @@
+/* Base card styling */
+.border-showcase-card {
+  position: relative;
+  border-radius: 8px;
+  isolation: isolate;
+}
+
+.border-showcase-content {
+  position: relative;
+  z-index: 1;
+  border-radius: 8px;
+  padding: 16px;
+  min-height: 96px;
+}
+
+/* ===== ANIMATION 1: Rotating Gradient (Low Performance) ===== */
+.border-anim-rotating-gradient {
+  background: linear-gradient(
+    0deg,
+    #FFD700,
+    #FFA500,
+    #FF6B6B,
+    #FFD700
+  );
+  background-size: 100% 400%;
+  animation: rotateGradient 3s linear infinite;
+  padding: 3px;
+}
+
+@keyframes rotateGradient {
+  0% { background-position: 0% 0%; }
+  100% { background-position: 0% 100%; }
+}
+
+/* ===== ANIMATION 2: Pulsing Glow (Low Performance) ===== */
+.border-anim-pulsing-glow {
+  border: 3px solid #FFD700;
+  animation: pulsingGlow 2s ease-in-out infinite;
+}
+
+@keyframes pulsingGlow {
+  0%, 100% {
+    box-shadow:
+      0 0 10px #FFD700,
+      0 0 20px #FFD700,
+      0 0 30px #FFD700;
+    border-color: #FFD700;
+  }
+  50% {
+    box-shadow:
+      0 0 20px #FF6B6B,
+      0 0 40px #FF6B6B,
+      0 0 60px #FF6B6B;
+    border-color: #FF6B6B;
+  }
+}
+
+/* ===== ANIMATION 3: Shimmer Wave (Medium Performance) ===== */
+.border-anim-shimmer-wave {
+  position: relative;
+  border: 3px solid transparent;
+  background:
+    linear-gradient(#1a1a1a, #1a1a1a) padding-box,
+    linear-gradient(90deg,
+      #FFD700 0%,
+      #FFF 25%,
+      #FFD700 50%,
+      #FFF 75%,
+      #FFD700 100%
+    ) border-box;
+  background-size: 100% 100%, 400% 100%;
+  animation: shimmerWave 2s linear infinite;
+}
+
+@keyframes shimmerWave {
+  0% { background-position: 0% 0%, 0% 0%; }
+  100% { background-position: 0% 0%, 400% 0%; }
+}
+
+.border-anim-shimmer-wave::before {
+  content: '';
+  position: absolute;
+  inset: -3px;
+  border-radius: 8px;
+  padding: 3px;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  animation: shimmerMove 2s linear infinite;
+  pointer-events: none;
+}
+
+@keyframes shimmerMove {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+/* ===== ANIMATION 4: Rainbow Spin (Medium Performance) ===== */
+.border-anim-rainbow-spin {
+  border: 3px solid #FFD700;
+  animation: rainbowSpin 4s linear infinite;
+}
+
+@keyframes rainbowSpin {
+  0% {
+    border-color: #FFD700;
+    box-shadow: 0 0 20px #FFD700, 0 0 40px #FFD700;
+  }
+  16% {
+    border-color: #FF6B6B;
+    box-shadow: 0 0 20px #FF6B6B, 0 0 40px #FF6B6B;
+  }
+  33% {
+    border-color: #FF1493;
+    box-shadow: 0 0 20px #FF1493, 0 0 40px #FF1493;
+  }
+  50% {
+    border-color: #9B59FF;
+    box-shadow: 0 0 20px #9B59FF, 0 0 40px #9B59FF;
+  }
+  66% {
+    border-color: #00D9FF;
+    box-shadow: 0 0 20px #00D9FF, 0 0 40px #00D9FF;
+  }
+  83% {
+    border-color: #00FF94;
+    box-shadow: 0 0 20px #00FF94, 0 0 40px #00FF94;
+  }
+  100% {
+    border-color: #FFD700;
+    box-shadow: 0 0 20px #FFD700, 0 0 40px #FFD700;
+  }
+}
+
+/* ===== ANIMATION 5: Electric Pulse (Medium Performance) ===== */
+.border-anim-electric-pulse {
+  position: relative;
+  border: 3px solid #FFD700;
+}
+
+.border-anim-electric-pulse::before,
+.border-anim-electric-pulse::after {
+  content: '';
+  position: absolute;
+  inset: -3px;
+  border-radius: 8px;
+  border: 3px solid transparent;
+  pointer-events: none;
+}
+
+.border-anim-electric-pulse::before {
+  border-color: rgba(255, 215, 0, 0.6);
+  animation: electricPulse1 1.5s ease-in-out infinite;
+}
+
+.border-anim-electric-pulse::after {
+  border-color: rgba(255, 107, 107, 0.6);
+  animation: electricPulse2 1.5s ease-in-out infinite 0.75s;
+}
+
+.border-anim-electric-pulse {
+  animation: electricPulseBase 1.5s ease-in-out infinite;
+}
+
+@keyframes electricPulseBase {
+  0%, 100% {
+    box-shadow:
+      0 0 10px #FFD700,
+      0 0 20px #FFD700;
+  }
+  50% {
+    box-shadow:
+      0 0 20px #FF6B6B,
+      0 0 40px #FF6B6B,
+      0 0 60px #FF6B6B;
+  }
+}
+
+@keyframes electricPulse1 {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 1;
+    filter: blur(0px);
+  }
+  50% {
+    transform: scale(1.15);
+    opacity: 0;
+    filter: blur(10px);
+  }
+}
+
+@keyframes electricPulse2 {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 1;
+    filter: blur(0px);
+  }
+  50% {
+    transform: scale(1.15);
+    opacity: 0;
+    filter: blur(10px);
+  }
+}
+
+/* ===== ANIMATION 6: Conic Gradient Spin (Medium Performance) ===== */
+.border-anim-conic-spin {
+  background: conic-gradient(
+    from 0deg,
+    #FFD700,
+    #FF6B6B,
+    #FF1493,
+    #9B59FF,
+    #00D9FF,
+    #FFD700
+  );
+  animation: conicSpin 3s linear infinite;
+  padding: 3px;
+}
+
+@keyframes conicSpin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* ===== ANIMATION 7: Multi-Glow Layers (High Performance) ===== */
+.border-anim-multi-glow {
+  position: relative;
+  border: 3px solid #FFD700;
+  animation: multiGlowBase 2s ease-in-out infinite;
+}
+
+.border-anim-multi-glow::before,
+.border-anim-multi-glow::after {
+  content: '';
+  position: absolute;
+  inset: -8px;
+  border-radius: 12px;
+  border: 2px solid transparent;
+  pointer-events: none;
+}
+
+.border-anim-multi-glow::before {
+  animation: multiGlow1 2s ease-in-out infinite;
+}
+
+.border-anim-multi-glow::after {
+  animation: multiGlow2 2s ease-in-out infinite 0.5s;
+  inset: -15px;
+  border-radius: 15px;
+}
+
+@keyframes multiGlowBase {
+  0%, 100% {
+    box-shadow:
+      0 0 15px #FFD700,
+      0 0 30px #FFD700,
+      inset 0 0 10px rgba(255, 215, 0, 0.3);
+  }
+  50% {
+    box-shadow:
+      0 0 25px #FF6B6B,
+      0 0 50px #FF6B6B,
+      0 0 75px #FF1493,
+      inset 0 0 20px rgba(255, 107, 107, 0.3);
+  }
+}
+
+@keyframes multiGlow1 {
+  0%, 100% {
+    border-color: rgba(255, 215, 0, 0.5);
+    transform: scale(1) rotate(0deg);
+    filter: blur(4px);
+  }
+  50% {
+    border-color: rgba(255, 107, 107, 0.8);
+    transform: scale(1.1) rotate(180deg);
+    filter: blur(8px);
+  }
+}
+
+@keyframes multiGlow2 {
+  0%, 100% {
+    border-color: rgba(155, 89, 255, 0.3);
+    transform: scale(1) rotate(0deg);
+    filter: blur(8px);
+  }
+  50% {
+    border-color: rgba(255, 20, 147, 0.6);
+    transform: scale(1.15) rotate(-180deg);
+    filter: blur(12px);
+  }
+}
+
+/* ===== ANIMATION 8: Color Wave (High Performance) ===== */
+.border-anim-color-wave {
+  position: relative;
+  padding: 3px;
+  background:
+    linear-gradient(90deg,
+      #FFD700 0%,
+      #FF6B6B 25%,
+      #FF1493 50%,
+      #9B59FF 75%,
+      #FFD700 100%
+    );
+  background-size: 300% 100%;
+  animation: colorWave 3s linear infinite;
+}
+
+.border-anim-color-wave::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  padding: 3px;
+  border-radius: 8px;
+  background:
+    linear-gradient(90deg,
+      transparent,
+      rgba(255, 255, 255, 0.8),
+      transparent
+    );
+  background-size: 50% 100%;
+  animation: colorWaveShine 1.5s linear infinite;
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
+@keyframes colorWave {
+  0% { background-position: 0% 50%; }
+  100% { background-position: 300% 50%; }
+}
+
+@keyframes colorWaveShine {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(200%); }
+}
+
+/* ===== ANIMATION 9: Sparkle Border (High Performance) ===== */
+.border-anim-sparkle {
+  position: relative;
+  border: 3px solid #FFD700;
+  animation: sparklePulse 2s ease-in-out infinite;
+}
+
+.border-anim-sparkle::before,
+.border-anim-sparkle::after {
+  content: '';
+  position: absolute;
+  width: 30px;
+  height: 30px;
+  background: radial-gradient(circle, #FFF 0%, #FFD700 30%, transparent 70%);
+  border-radius: 50%;
+  pointer-events: none;
+  filter: blur(3px);
+}
+
+.border-anim-sparkle::before {
+  top: -15px;
+  left: -15px;
+  animation: sparkleMove1 3s linear infinite;
+}
+
+.border-anim-sparkle::after {
+  bottom: -15px;
+  right: -15px;
+  animation: sparkleMove2 3s linear infinite;
+}
+
+@keyframes sparklePulse {
+  0%, 100% {
+    box-shadow:
+      0 0 15px #FFD700,
+      0 0 30px #FFD700;
+  }
+  50% {
+    box-shadow:
+      0 0 25px #FF6B6B,
+      0 0 50px #FF6B6B;
+  }
+}
+
+@keyframes sparkleMove1 {
+  0% {
+    transform: translate(0, 0) scale(1);
+    opacity: 1;
+  }
+  25% {
+    transform: translate(320px, 0) scale(1.5);
+    opacity: 0.8;
+  }
+  50% {
+    transform: translate(320px, 96px) scale(1);
+    opacity: 1;
+  }
+  75% {
+    transform: translate(0, 96px) scale(0.8);
+    opacity: 0.6;
+  }
+  100% {
+    transform: translate(0, 0) scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes sparkleMove2 {
+  0% {
+    transform: translate(0, 0) scale(1);
+    opacity: 1;
+  }
+  25% {
+    transform: translate(-320px, 0) scale(0.8);
+    opacity: 0.6;
+  }
+  50% {
+    transform: translate(-320px, -96px) scale(1.5);
+    opacity: 0.8;
+  }
+  75% {
+    transform: translate(0, -96px) scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(0, 0) scale(1);
+    opacity: 1;
+  }
+}
+
+/* ===== ANIMATION 10: Neon Flicker (High Performance) ===== */
+.border-anim-neon-flicker {
+  border: 3px solid #FFD700;
+  animation: neonFlicker 1s steps(4, end) infinite;
+}
+
+@keyframes neonFlicker {
+  0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% {
+    box-shadow:
+      0 0 10px #FFD700,
+      0 0 20px #FFD700,
+      0 0 30px #FFD700,
+      0 0 40px #FF6B6B,
+      0 0 70px #FF6B6B,
+      0 0 80px #FF1493,
+      inset 0 0 10px rgba(255, 215, 0, 0.5);
+    border-color: #FFD700;
+    filter: brightness(1.2) saturate(1.3);
+  }
+  20%, 24%, 55% {
+    box-shadow:
+      0 0 5px #FFD700,
+      0 0 10px #FFD700;
+    border-color: #FFA500;
+    filter: brightness(0.9) saturate(1);
+  }
+  22% {
+    box-shadow:
+      0 0 20px #FF6B6B,
+      0 0 40px #FF6B6B,
+      0 0 60px #FF1493,
+      0 0 100px #9B59FF;
+    border-color: #FF6B6B;
+    filter: brightness(1.5) saturate(1.5);
+  }
+}

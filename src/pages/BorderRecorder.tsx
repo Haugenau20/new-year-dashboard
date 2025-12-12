@@ -1,60 +1,119 @@
 import { useState, useEffect } from 'react';
-import ElectricBorder from '../components/ElectricBorder';
+import './BorderRecorder.css';
+
+interface AnimationPreset {
+  name: string;
+  description: string;
+  performance: 'Low' | 'Medium' | 'High';
+  className: string;
+}
 
 /**
  * Border Recorder Page
- * Clean view of ElectricBorder effect for recording - no UI elements
+ * Showcase of 10 CSS border animations for performance testing
  * Keyboard controls:
- * - Arrow Left/Right or 1/2: Switch between large and small border sizes
+ * - Arrow Left/Right: Cycle through animations
+ * - 0-9: Jump to specific animation
  * - H: Toggle help overlay
  */
 export function BorderRecorder() {
-  const [currentSize, setCurrentSize] = useState<'large' | 'small'>('large');
+  const [currentIndex, setCurrentIndex] = useState(0);
   const [showHelp, setShowHelp] = useState(true);
 
-  // Border configurations matching QueueDisplay usage
-  const borderConfigs = {
-    large: {
-      name: 'Large Border (Main "Up Next")',
-      width: 320,
-      thickness: 3,
-      borderRadius: 8,
-      color: '#FFD700',
-      speed: 1.5,
-      chaos: 0.8
+  // 10 different CSS animation presets
+  const animations: AnimationPreset[] = [
+    {
+      name: 'Rotating Gradient',
+      description: 'Smooth rotating linear gradient',
+      performance: 'Low',
+      className: 'border-anim-rotating-gradient'
     },
-    small: {
-      name: 'Small Border (Additional Songs)',
-      width: 240,
-      thickness: 2,
-      borderRadius: 6,
-      color: '#FFD700',
-      speed: 1.5,
-      chaos: 0.8
+    {
+      name: 'Pulsing Glow',
+      description: 'Pulsing box-shadow with color shift',
+      performance: 'Low',
+      className: 'border-anim-pulsing-glow'
+    },
+    {
+      name: 'Shimmer Wave',
+      description: 'Sweeping shine effect',
+      performance: 'Medium',
+      className: 'border-anim-shimmer-wave'
+    },
+    {
+      name: 'Rainbow Spin',
+      description: 'Full spectrum hue rotation',
+      performance: 'Medium',
+      className: 'border-anim-rainbow-spin'
+    },
+    {
+      name: 'Electric Pulse',
+      description: 'Multi-layer pulsing glow',
+      performance: 'Medium',
+      className: 'border-anim-electric-pulse'
+    },
+    {
+      name: 'Conic Gradient Spin',
+      description: 'Rotating conic gradient',
+      performance: 'Medium',
+      className: 'border-anim-conic-spin'
+    },
+    {
+      name: 'Multi-Glow Layers',
+      description: 'Multiple animated shadow layers',
+      performance: 'High',
+      className: 'border-anim-multi-glow'
+    },
+    {
+      name: 'Color Wave',
+      description: 'Gradient position with color shifts',
+      performance: 'High',
+      className: 'border-anim-color-wave'
+    },
+    {
+      name: 'Sparkle Border',
+      description: 'Multiple glowing spots traveling',
+      performance: 'High',
+      className: 'border-anim-sparkle'
+    },
+    {
+      name: 'Neon Flicker',
+      description: 'Energetic brightness variation',
+      performance: 'High',
+      className: 'border-anim-neon-flicker'
     }
-  };
+  ];
 
-  const currentConfig = borderConfigs[currentSize];
+  const currentAnimation = animations[currentIndex];
 
   // Keyboard controls
   useEffect(() => {
     const handleKeyPress = (e: KeyboardEvent) => {
       switch (e.key) {
         case 'ArrowLeft':
-          setCurrentSize('large');
+          setCurrentIndex((prev) => (prev - 1 + animations.length) % animations.length);
           break;
         case 'ArrowRight':
-          setCurrentSize('small');
+          setCurrentIndex((prev) => (prev + 1) % animations.length);
           break;
         case 'h':
         case 'H':
           setShowHelp((prev) => !prev);
           break;
+        case '0':
         case '1':
-          setCurrentSize('large');
-          break;
         case '2':
-          setCurrentSize('small');
+        case '3':
+        case '4':
+        case '5':
+        case '6':
+        case '7':
+        case '8':
+        case '9':
+          const index = parseInt(e.key);
+          if (index < animations.length) {
+            setCurrentIndex(index);
+          }
           break;
       }
     };
@@ -70,95 +129,65 @@ export function BorderRecorder() {
     }, 5000);
 
     return () => clearTimeout(timer);
-  }, [currentSize]); // Reset timer when size changes
+  }, [currentIndex]);
 
   return (
     <div className="w-screen h-screen bg-black overflow-hidden relative flex items-center justify-center">
       {/* Border Display - Centered */}
-      <div
-        style={{
-          width: `${currentConfig.width}px`,
-        }}
-      >
-        <ElectricBorder
-          color={currentConfig.color}
-          speed={currentConfig.speed}
-          chaos={currentConfig.chaos}
-          thickness={currentConfig.thickness}
-          style={{ borderRadius: currentConfig.borderRadius }}
-        >
-          <div
-            className="bg-gradient-gold shadow-gold"
-            style={{
-              borderRadius: `${currentConfig.borderRadius}px`,
-              padding: currentSize === 'large' ? '16px' : '8px',
-              minHeight: currentSize === 'large' ? '96px' : '48px',
-            }}
-          >
+      <div style={{ width: '320px' }}>
+        <div className={`border-showcase-card ${currentAnimation.className}`}>
+          <div className="border-showcase-content bg-gradient-gold shadow-gold">
             {/* Mock content to show border context */}
-            <div className="flex items-center gap-4" style={{ gap: currentSize === 'large' ? '16px' : '8px' }}>
-              <div
-                className="bg-white/10 rounded flex-shrink-0"
-                style={{
-                  width: currentSize === 'large' ? '64px' : '32px',
-                  height: currentSize === 'large' ? '64px' : '32px'
-                }}
-              />
+            <div className="flex items-center gap-4">
+              <div className="bg-white/10 rounded flex-shrink-0" style={{ width: '64px', height: '64px' }} />
               <div className="flex-1 min-w-0">
-                <div
-                  className="bg-white/20 rounded mb-2"
-                  style={{
-                    height: currentSize === 'large' ? '20px' : '14px',
-                    width: '80%'
-                  }}
-                />
-                <div
-                  className="bg-white/10 rounded"
-                  style={{
-                    height: currentSize === 'large' ? '16px' : '12px',
-                    width: '60%'
-                  }}
-                />
+                <div className="bg-white/20 rounded mb-2" style={{ height: '20px', width: '80%' }} />
+                <div className="bg-white/10 rounded" style={{ height: '16px', width: '60%' }} />
               </div>
             </div>
           </div>
-        </ElectricBorder>
+        </div>
       </div>
 
       {/* Help Overlay */}
       {showHelp && (
         <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 pointer-events-none">
           <div className="bg-white/10 backdrop-blur-md rounded-2xl p-8 max-w-2xl border border-white/20">
-            <h1 className="text-4xl font-bold text-white mb-6">Electric Border Recorder</h1>
+            <h1 className="text-4xl font-bold text-white mb-6">CSS Border Animation Showcase</h1>
             <div className="space-y-3 text-white/90">
               <p className="text-xl mb-4">
-                Current: <span className="font-bold text-yellow-400">{currentConfig.name}</span>
+                <span className="font-bold text-yellow-400">{currentAnimation.name}</span>
+                <span className="ml-3 text-sm px-2 py-1 rounded bg-white/10">
+                  {currentAnimation.performance} Performance
+                </span>
               </p>
+              <p className="text-base text-white/70 mb-4">{currentAnimation.description}</p>
               <div className="space-y-2 text-lg">
-                <div><kbd className="bg-white/20 px-3 py-1 rounded">←</kbd> <kbd className="bg-white/20 px-3 py-1 rounded">→</kbd> Switch between sizes</div>
-                <div><kbd className="bg-white/20 px-3 py-1 rounded">1</kbd> Large border (320px)</div>
-                <div><kbd className="bg-white/20 px-3 py-1 rounded">2</kbd> Small border (240px)</div>
+                <div><kbd className="bg-white/20 px-3 py-1 rounded">←</kbd> <kbd className="bg-white/20 px-3 py-1 rounded">→</kbd> Cycle through animations</div>
+                <div><kbd className="bg-white/20 px-3 py-1 rounded">0-9</kbd> Jump to specific animation</div>
                 <div><kbd className="bg-white/20 px-3 py-1 rounded">H</kbd> Toggle this help</div>
               </div>
               <p className="text-sm text-white/60 mt-6">
-                Record each size separately for video assets
+                Test each animation on your Google TV to check performance
               </p>
               <p className="text-sm text-white/60">
-                Press <kbd className="bg-white/20 px-2 py-0.5 rounded text-xs">H</kbd> to hide this overlay before recording
+                Press <kbd className="bg-white/20 px-2 py-0.5 rounded text-xs">H</kbd> to hide this overlay
               </p>
             </div>
           </div>
         </div>
       )}
 
-      {/* Minimal Status Indicator */}
+      {/* Status Indicator */}
       {showHelp && (
         <div className="fixed top-4 left-4 bg-black/50 backdrop-blur-md rounded-lg px-4 py-2 text-white/80 z-40">
           <div className="text-sm">
-            <span className="font-semibold">{currentConfig.name}</span>
+            <span className="font-mono">{currentIndex + 1}/{animations.length}</span>
+            <span className="mx-2">•</span>
+            <span className="font-semibold">{currentAnimation.name}</span>
           </div>
           <div className="text-xs text-white/50 mt-1">
-            {currentConfig.width}px × thickness: {currentConfig.thickness}px
+            Performance: {currentAnimation.performance}
           </div>
           <div className="text-xs text-white/50 mt-1">
             Press <kbd className="bg-white/10 px-1 rounded text-[10px]">H</kbd> for help

@@ -8,6 +8,7 @@ import { MidnightCountdown } from './components/MidnightCountdown';
 import { KongensTaleCountdown } from './components/KongensTaleCountdown';
 import { SpotifyCallback } from './pages/SpotifyCallback';
 import { BackgroundRecorder } from './pages/BackgroundRecorder';
+import { BorderRecorder } from './pages/BorderRecorder';
 import { SpotifyService } from './services/spotify';
 import { TRANSITION_DURATION_MS } from './config/backgrounds';
 
@@ -20,6 +21,7 @@ function App() {
   const [spotifyService, setSpotifyService] = useState<SpotifyService | null>(null);
   const [isCallback, setIsCallback] = useState(false);
   const [isDevPage, setIsDevPage] = useState(false);
+  const [isBorderRecordPage, setIsBorderRecordPage] = useState(false);
   const [configError, setConfigError] = useState<string | null>(null);
 
   const spotifyState = useSpotify(spotifyService);
@@ -31,6 +33,8 @@ function App() {
       setIsCallback(true);
     } else if (window.location.pathname === '/dev') {
       setIsDevPage(true);
+    } else if (window.location.pathname === '/border-record') {
+      setIsBorderRecordPage(true);
     }
   }, []);
 
@@ -84,6 +88,10 @@ function App() {
 
   if (isDevPage) {
     return <BackgroundRecorder />;
+  }
+
+  if (isBorderRecordPage) {
+    return <BorderRecorder />;
   }
 
   // Show configuration error if environment variables are missing

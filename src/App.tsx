@@ -27,13 +27,30 @@ function App() {
   const spotifyState = useSpotify(spotifyService);
   const background = useBackgroundRotation(spotifyState.playback?.item?.uri);
 
+  // Handle GitHub Pages SPA redirect from 404.html
+  useEffect(() => {
+    // Check if we're being redirected from 404.html
+    const query = window.location.search;
+    if (query && query.startsWith('?/')) {
+      const path = query.slice(2).split('&')[0].replace(/~and~/g, '&');
+      window.history.replaceState(null, '', '/' + path);
+    }
+  }, []);
+
   // Check if we're on special routes
   useEffect(() => {
-    if (window.location.pathname === '/callback') {
+    // Get pathname and strip the base path for GitHub Pages
+    let pathname = window.location.pathname;
+    const basePath = '/new-year-dashboard';
+    if (pathname.startsWith(basePath)) {
+      pathname = pathname.slice(basePath.length) || '/';
+    }
+
+    if (pathname === '/callback') {
       setIsCallback(true);
-    } else if (window.location.pathname === '/dev') {
+    } else if (pathname === '/dev') {
       setIsDevPage(true);
-    } else if (window.location.pathname === '/border-record') {
+    } else if (pathname === '/border-record') {
       setIsBorderRecordPage(true);
     }
   }, []);
@@ -64,7 +81,8 @@ function App() {
     if (spotifyService) {
       try {
         await spotifyService.handleCallback(code);
-        window.location.href = '/';
+        // Use relative path for proper base path handling
+        window.location.href = import.meta.env.BASE_URL || '/';
       } catch (error) {
         console.error('Failed to complete Spotify authentication:', error);
       }
@@ -73,7 +91,8 @@ function App() {
 
   const handleSpotifyCallbackError = (error: string) => {
     console.error('Spotify authentication error:', error);
-    window.location.href = '/';
+    // Use relative path for proper base path handling
+    window.location.href = import.meta.env.BASE_URL || '/';
   };
 
   // Handle special pages

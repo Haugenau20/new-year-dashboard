@@ -60,6 +60,6 @@ export interface SpotifyTokens {
 
 export interface SpotifyConfig {
   clientId: string;
-  clientSecret: string;
   redirectUri: string;
+  functionsUrl?: string; // Optional Firebase Functions URL
 }

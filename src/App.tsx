@@ -14,8 +14,8 @@ import { TRANSITION_DURATION_MS } from './config/backgrounds';
 
 // Load configuration from environment variables
 const SPOTIFY_CLIENT_ID = import.meta.env.VITE_SPOTIFY_CLIENT_ID || '';
-const SPOTIFY_CLIENT_SECRET = import.meta.env.VITE_SPOTIFY_CLIENT_SECRET || '';
 const SPOTIFY_REDIRECT_URI = import.meta.env.VITE_SPOTIFY_REDIRECT_URI || 'http://127.0.0.1:3001/callback';
+const FIREBASE_FUNCTIONS_URL = import.meta.env.VITE_FIREBASE_FUNCTIONS_URL || '';
 
 function App() {
   const [spotifyService, setSpotifyService] = useState<SpotifyService | null>(null);
@@ -57,7 +57,7 @@ function App() {
 
   // Validate configuration on mount
   useEffect(() => {
-    if (!SPOTIFY_CLIENT_ID || !SPOTIFY_CLIENT_SECRET) {
+    if (!SPOTIFY_CLIENT_ID) {
       setConfigError('Missing Spotify API configuration. Check your .env file.');
       return;
     }
@@ -66,11 +66,11 @@ function App() {
 
   // Initialize Spotify service
   useEffect(() => {
-    if (SPOTIFY_CLIENT_ID && SPOTIFY_CLIENT_SECRET && SPOTIFY_REDIRECT_URI) {
+    if (SPOTIFY_CLIENT_ID && SPOTIFY_REDIRECT_URI) {
       const service = new SpotifyService({
         clientId: SPOTIFY_CLIENT_ID,
-        clientSecret: SPOTIFY_CLIENT_SECRET,
         redirectUri: SPOTIFY_REDIRECT_URI,
+        functionsUrl: FIREBASE_FUNCTIONS_URL,
       });
       setSpotifyService(service);
     }

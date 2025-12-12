@@ -14,8 +14,10 @@ export function rgbToFilters(rgbHex: string): CSSFilters {
 
   return {
     hueRotate: Math.round(h),
-    saturation: Math.round(s * 100),
-    brightness: l > 50 ? 120 : 90
+    // Gentle saturation boost - cap at 120% to avoid over-saturation and banding
+    saturation: Math.min(120, Math.round(80 + (s * 0.4))),
+    // Subtle brightness adjustment - keep close to 100% to preserve video quality
+    brightness: l > 50 ? 105 : 95
   };
 }
 

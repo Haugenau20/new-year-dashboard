@@ -683,7 +683,7 @@
 /* ===== ANIMATION 16: Disco Party (Medium Performance) ===== */
 .border-anim-disco {
   border: 3px solid #FFD700;
-  animation: disco 0.5s steps(8) infinite;
+  animation: disco 5s steps(8) infinite;
 }
 
 @keyframes disco {

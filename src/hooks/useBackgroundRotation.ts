@@ -17,12 +17,13 @@ interface BackgroundState {
   isTransitioning: boolean;
 }
 
-// Note: Previous DarkVeil calibration removed since we now use VideoBackground with CSS filters
-
 /**
- * Hook to manage background rotation and color injection based on currently playing track
+ * Hook to manage background rotation
  * @param currentTrackUri - Spotify URI of the currently playing track (e.g., "spotify:track:...")
- * @returns Current background preset and props with injected colors
+ * @returns Current background preset and props
+ *
+ * NOTE: Special song color filters are currently DISABLED (needs calibration work).
+ *       See commented code in calculateProps() to re-enable.
  */
 export function useBackgroundRotation(currentTrackUri?: string): BackgroundState {
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -57,19 +58,31 @@ export function useBackgroundRotation(currentTrackUri?: string): BackgroundState
       // Start with default props
       let calculatedProps = { ...preset.defaultProps };
 
-      // Inject special song colors if applicable (all backgrounds are now VideoBackground)
-      if (currentTrackUri && currentTrackUri in specialSongColors) {
-        const songData = specialSongColors[currentTrackUri as keyof typeof specialSongColors];
-        const colors = songData.colors;
+      // ============================================================================
+      // SPECIAL SONG COLOR FILTERS - CURRENTLY DISABLED
+      // ============================================================================
+      // To re-enable: Uncomment the code below
+      //
+      // NOTE: Before enabling, you need to calibrate each background video:
+      // 1. Add a `hueOffset` property to each background in backgrounds.ts
+      // 2. For each background, determine its base color hue (0-360°)
+      // 3. Calculate offset needed to shift it to match special song colors
+      //
+      // Estimated effort: ~30-60 minutes per background video × 5-8 backgrounds
+      // ============================================================================
 
-        // Apply CSS filters for special song color
-        if (colors.vibrant) {
-          const filters = rgbToFilters(colors.vibrant);
-          calculatedProps.hueRotate = filters.hueRotate;
-          calculatedProps.saturation = filters.saturation;
-          calculatedProps.brightness = filters.brightness;
-        }
-      }
+      // if (currentTrackUri && currentTrackUri in specialSongColors) {
+      //   const songData = specialSongColors[currentTrackUri as keyof typeof specialSongColors];
+      //   const colors = songData.colors;
+      //
+      //   // Apply CSS filters for special song color
+      //   if (colors.vibrant) {
+      //     const filters = rgbToFilters(colors.vibrant);
+      //     calculatedProps.hueRotate = filters.hueRotate;
+      //     calculatedProps.saturation = filters.saturation;
+      //     calculatedProps.brightness = filters.brightness;
+      //   }
+      // }
 
       return calculatedProps;
     };
@@ -100,14 +113,14 @@ export function useBackgroundRotation(currentTrackUri?: string): BackgroundState
     }
   }, [nextPreset, nextProps]);
 
-  // Log only when special song starts/stops (in development mode)
-  useEffect(() => {
-    const isSpecial = currentTrackUri && currentTrackUri in specialSongColors;
-
-    if (process.env.NODE_ENV === 'development' && isSpecial) {
-      console.log('⭐ Special song:', currentTrackUri);
-    }
-  }, [currentTrackUri]);
+  // Special song detection logging (disabled since color filters are disabled)
+  // useEffect(() => {
+  //   const isSpecial = currentTrackUri && currentTrackUri in specialSongColors;
+  //
+  //   if (process.env.NODE_ENV === 'development' && isSpecial) {
+  //     console.log('⭐ Special song:', currentTrackUri);
+  //   }
+  // }, [currentTrackUri]);
 
   return {
     current: {

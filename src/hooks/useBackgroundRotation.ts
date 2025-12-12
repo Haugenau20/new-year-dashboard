@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { BACKGROUNDS, ROTATION_INTERVAL_MS, TRANSITION_DURATION_MS, BackgroundPreset } from '../config/backgrounds';
-import specialSongColors from '../config/specialSongColors.json';
-import { rgbToFilters } from '../utils/colorFilters';
+// import specialSongColors from '../config/specialSongColors.json';
+// import { rgbToFilters } from '../utils/colorFilters';
 
 interface BackgroundState {
   current: {

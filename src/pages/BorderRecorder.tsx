@@ -20,7 +20,7 @@ export function BorderRecorder() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [showHelp, setShowHelp] = useState(true);
 
-  // 10 different CSS animation presets
+  // 20 different CSS animation presets
   const animations: AnimationPreset[] = [
     {
       name: 'Rotating Gradient',
@@ -81,6 +81,66 @@ export function BorderRecorder() {
       description: 'Energetic brightness variation',
       performance: 'High',
       className: 'border-anim-neon-flicker'
+    },
+    {
+      name: 'Border Chase',
+      description: 'Glowing dots chasing around border',
+      performance: 'Medium',
+      className: 'border-anim-border-chase'
+    },
+    {
+      name: 'Lightning Strike',
+      description: 'Quick electric flashes in corners',
+      performance: 'Medium',
+      className: 'border-anim-lightning'
+    },
+    {
+      name: 'Dual Pulse',
+      description: 'Alternating two-tone pulsing',
+      performance: 'Low',
+      className: 'border-anim-dual-pulse'
+    },
+    {
+      name: 'Diagonal Sweep',
+      description: 'Gradient sweeping diagonally',
+      performance: 'Medium',
+      className: 'border-anim-diagonal-sweep'
+    },
+    {
+      name: 'Heartbeat',
+      description: 'Rhythmic double-pulse effect',
+      performance: 'Low',
+      className: 'border-anim-heartbeat'
+    },
+    {
+      name: 'Disco Party',
+      description: 'Rapid vibrant color changes',
+      performance: 'Medium',
+      className: 'border-anim-disco'
+    },
+    {
+      name: 'Wave Motion',
+      description: 'Undulating border animation',
+      performance: 'High',
+      className: 'border-anim-wave-motion'
+    },
+    {
+      name: 'Color Burst',
+      description: 'Expanding color rings from center',
+      performance: 'High',
+      className: 'border-anim-color-burst'
+    },
+    {
+      name: 'Strobe Flash',
+      description: 'High energy rapid flashing',
+      performance: 'Medium',
+      className: 'border-anim-strobe'
+    },
+    {
+      name: 'Plasma Flow',
+      description: 'Flowing multi-color plasma effect',
+      performance: 'High',
+      className: 'border-anim-plasma'
     }
   ];
 

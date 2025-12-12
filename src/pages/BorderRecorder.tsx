@@ -197,12 +197,23 @@ export function BorderRecorder() {
       <div style={{ width: '320px' }}>
         <div className={`border-showcase-card ${currentAnimation.className}`}>
           <div className="border-showcase-content bg-gradient-gold shadow-gold">
-            {/* Mock content to show border context */}
+            {/* Mock song card to show border context */}
             <div className="flex items-center gap-4">
-              <div className="bg-white/10 rounded flex-shrink-0" style={{ width: '64px', height: '64px' }} />
+              {/* Album Art */}
+              <img
+                src="https://i.scdn.co/image/ab67616d0000b273e319baafd16e84f0408af2a0"
+                alt="Album Art"
+                className="rounded flex-shrink-0"
+                style={{ width: '64px', height: '64px' }}
+              />
+              {/* Song Info */}
               <div className="flex-1 min-w-0">
-                <div className="bg-white/20 rounded mb-2" style={{ height: '20px', width: '80%' }} />
-                <div className="bg-white/10 rounded" style={{ height: '16px', width: '60%' }} />
+                <div className="text-white font-semibold text-base leading-tight mb-1 truncate">
+                  Blinding Lights
+                </div>
+                <div className="text-white/70 text-sm truncate">
+                  The Weeknd
+                </div>
               </div>
             </div>
           </div>

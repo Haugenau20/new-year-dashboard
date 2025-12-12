@@ -41,23 +41,25 @@ export class SpotifyService {
   }
 
   async handleCallback(code: string): Promise<void> {
-    const params = new URLSearchParams({
-      grant_type: 'authorization_code',
-      code,
-      redirect_uri: this.config.redirectUri,
-    });
+    // Determine the Cloud Function URL
+    const functionsUrl = this.config.functionsUrl ||
+      import.meta.env.VITE_FIREBASE_FUNCTIONS_URL ||
+      'https://us-central1-new-year-dashboard.cloudfunctions.net';
 
-    const response = await fetch(`${SPOTIFY_ACCOUNTS_BASE}/api/token`, {
+    const response = await fetch(`${functionsUrl}/exchangeSpotifyToken`, {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-        Authorization: 'Basic ' + btoa(`${this.config.clientId}:${this.config.clientSecret}`),
+        'Content-Type': 'application/json',
       },
-      body: params.toString(),
+      body: JSON.stringify({
+        code: code,
+        redirectUri: this.config.redirectUri,
+      }),
     });
 
     if (!response.ok) {
-      throw new Error('Failed to exchange code for tokens');
+      const error = await response.json().catch(() => ({ error: 'Failed to authenticate with Spotify' }));
+      throw new Error(error.error || 'Failed to exchange code for tokens');
     }
 
     const data = await response.json();
@@ -75,22 +77,24 @@ export class SpotifyService {
       throw new Error('No refresh token available');
     }
 
-    const params = new URLSearchParams({
-      grant_type: 'refresh_token',
-      refresh_token: this.tokens.refresh_token,
-    });
+    // Determine the Cloud Function URL
+    const functionsUrl = this.config.functionsUrl ||
+      import.meta.env.VITE_FIREBASE_FUNCTIONS_URL ||
+      'https://us-central1-new-year-dashboard.cloudfunctions.net';
 
-    const response = await fetch(`${SPOTIFY_ACCOUNTS_BASE}/api/token`, {
+    const response = await fetch(`${functionsUrl}/refreshSpotifyToken`, {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-        Authorization: 'Basic ' + btoa(`${this.config.clientId}:${this.config.clientSecret}`),
+        'Content-Type': 'application/json',
       },
-      body: params.toString(),
+      body: JSON.stringify({
+        refreshToken: this.tokens.refresh_token,
+      }),
     });
 
     if (!response.ok) {
-      throw new Error('Failed to refresh token');
+      const error = await response.json().catch(() => ({ error: 'Failed to refresh token' }));
+      throw new Error(error.error || 'Failed to refresh token');
     }
 
     const data = await response.json();

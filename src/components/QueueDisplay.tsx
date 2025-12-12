@@ -1,7 +1,7 @@
 import { memo } from 'react';
 import { SpotifyQueue, SpotifyTrack } from '../types/spotify';
 import { SPECIAL_SONGS } from '../config/specialSongs';
-import ElectricBorder from './ElectricBorder';
+import DiscoBorder from './DiscoBorder';
 
 interface QueueDisplayProps {
   queue: SpotifyQueue | null;
@@ -56,13 +56,7 @@ export const QueueDisplay = memo(function QueueDisplay({ queue }: QueueDisplayPr
 
         <div className="flex flex-col gap-3 sm-dashboard:gap-2">
           {/* Main/Next Special Song */}
-          <ElectricBorder
-            color="#FFD700"
-            speed={1.5}
-            chaos={0.8}
-            thickness={3}
-            style={{ borderRadius: 8 }}
-          >
+          <DiscoBorder>
             <div className="flex items-center gap-4 sm-dashboard:gap-3 p-4 sm-dashboard:p-3 bg-gradient-gold shadow-gold rounded-lg relative">
               {nextSpecialSong.album?.images && nextSpecialSong.album.images.length > 0 && (
                 <img
@@ -85,20 +79,14 @@ export const QueueDisplay = memo(function QueueDisplay({ queue }: QueueDisplayPr
                 )}
               </div>
             </div>
-          </ElectricBorder>
+          </DiscoBorder>
 
           {/* Additional Special Songs (1/2 size) */}
           {additionalSpecialSongs.map((track, index) => {
             const { label: trackLabel } = isSpecialSong(track);
             return (
               <div key={`${track.id}-${index}`} className="w-[240px] sm-dashboard:w-[200px]">
-                <ElectricBorder
-                  color="#FFD700"
-                  speed={1.5}
-                  chaos={0.8}
-                  thickness={2}
-                  style={{ borderRadius: 6 }}
-                >
+                <DiscoBorder>
                   <div className="flex items-center gap-2 sm-dashboard:gap-1.5 p-2 sm-dashboard:p-1.5 bg-gradient-gold shadow-gold rounded-md relative">
                     {track.album?.images && track.album.images.length > 0 && (
                       <img
@@ -121,7 +109,7 @@ export const QueueDisplay = memo(function QueueDisplay({ queue }: QueueDisplayPr
                       )}
                     </div>
                   </div>
-                </ElectricBorder>
+                </DiscoBorder>
               </div>
             );
           })}

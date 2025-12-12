@@ -34,10 +34,10 @@ export const BACKGROUNDS: BackgroundPreset[] = [
     component: VideoBackground,
     defaultProps: {
       src: '/assets/videos/iridescence-loop.mp4',
-      hueRotate: 3100,
-      saturation: 80,
-      brightness: 120,
-      opacity: 0.8
+      hueRotate: 0,
+      saturation: 100,
+      brightness: 100,
+      opacity: 0.6
     }
   },
   // {

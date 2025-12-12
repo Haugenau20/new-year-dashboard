@@ -5,12 +5,36 @@ This guide walks you through migrating your New Year Dashboard from GitHub Pages
 
 ---
 
+## 🎯 Current Progress
+
+### ✅ Completed
+- **Firebase Project Created**: Project ID `new-year-dashboard`
+- **Blaze Plan Active**: Ready for Cloud Functions deployment
+- **Firebase CLI Installed**: Version installed and ready to use
+- **Project Structure**: Existing React/Vite app ready for migration
+
+### 📋 Quick Reference
+**Your Firebase Project Details:**
+- Project ID: `new-year-dashboard`
+- Project Number: `786634141410`
+- Hosting URL (after deploy): `https://new-year-dashboard.web.app`
+- Functions URL (after deploy): `https://us-central1-new-year-dashboard.cloudfunctions.net`
+
+### 🚀 Next Steps (Start Here When You're Ready)
+1. Navigate to project directory: `cd /path/to/new-year-dashboard`
+2. Run `firebase login` to authenticate
+3. Run `firebase init` to configure the project
+4. Follow Parts 2-10 in this guide below
+
+---
+
 ## Prerequisites
 
-- Firebase CLI installed: `npm install -g firebase-tools`
-- Node.js 18+ installed
-- Existing Firebase account
-- Spotify Client ID and Client Secret
+- ✅ Firebase CLI installed: `npm install -g firebase-tools` **(DONE)**
+- ✅ Node.js 18+ installed **(DONE)**
+- ✅ Firebase account with Blaze plan **(DONE)**
+- ✅ Firebase project created: `new-year-dashboard` **(DONE)**
+- ✅ Spotify Client ID and Client Secret **(AVAILABLE)**
 
 ---
 
@@ -33,7 +57,7 @@ When prompted, select:
 ### Step 1.2: Configuration Prompts
 
 **For Hosting:**
-- Use an existing project or create a new one
+- **Use an existing project**: Select **new-year-dashboard** from the list
 - Public directory: `dist` (Vite's build output)
 - Configure as single-page app: **Yes**
 - Set up automatic builds with GitHub: **No** (we'll do manual deploys for now)
@@ -43,6 +67,8 @@ When prompted, select:
 - Language: **TypeScript** (recommended) or JavaScript
 - Use ESLint: **Yes** (optional but recommended)
 - Install dependencies now: **Yes**
+
+**Important:** When asked which project to use, select your existing **new-year-dashboard** project!
 
 ### Step 1.3: Update `firebase.json`
 

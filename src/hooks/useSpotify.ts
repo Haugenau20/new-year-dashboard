@@ -1,11 +1,10 @@
 import { useState, useEffect } from 'react';
 import { SpotifyService } from '../services/spotify';
-import { SpotifyPlaybackState, SpotifyQueue, SpotifyPlaylist } from '../types/spotify';
+import { SpotifyPlaybackState, SpotifyQueue } from '../types/spotify';
 
 interface SpotifyState {
   playback: SpotifyPlaybackState | null;
   queue: SpotifyQueue | null;
-  playlist: SpotifyPlaylist | null;
   isAuthenticated: boolean;
   isLoading: boolean;
   error: string | null;
@@ -53,7 +52,6 @@ export function useSpotify(spotifyService: SpotifyService | null) {
   const [state, setState] = useState<SpotifyState>({
     playback: null,
     queue: null,
-    playlist: null,
     isAuthenticated: false,
     isLoading: true,
     error: null,
@@ -84,23 +82,13 @@ export function useSpotify(spotifyService: SpotifyService | null) {
 
         if (!isMounted) return;
 
-        // Extract playlist ID from context if available
-        let playlist: SpotifyPlaylist | null = null;
-        if (playback?.context?.type === 'playlist') {
-          const playlistId = playback.context.uri.split(':').pop();
-          if (playlistId) {
-            playlist = await spotifyService.getPlaylist(playlistId);
-          }
-        }
-
         // Only update state if data actually changed
         setState((prev) => {
           const playbackChanged = !isSpotifyStateEqual(prev.playback, playback);
           const queueChanged = !isQueueEqual(prev.queue, queue);
-          const playlistChanged = prev.playlist?.id !== playlist?.id;
 
           // If nothing changed, return previous state (prevents re-render)
-          if (!playbackChanged && !queueChanged && !playlistChanged) {
+          if (!playbackChanged && !queueChanged) {
             return prev;
           }
 
@@ -118,14 +106,13 @@ export function useSpotify(spotifyService: SpotifyService | null) {
             ...prev,
             playback,
             queue,
-            playlist,
             isLoading: false,
             error: null,
           };
         });
       } catch (error) {
         if (!isMounted) return;
-        // Silently handle errors - they may be expected (e.g., missing playlist)
+        // Silently handle errors
         setState((prev) => ({
           ...prev,
           isLoading: false,

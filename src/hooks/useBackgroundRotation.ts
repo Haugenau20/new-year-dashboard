@@ -18,9 +18,14 @@ interface BackgroundState {
 }
 
 /**
- * Hook to manage background rotation
+ * Hook to manage background rotation with cycle-based hue shifting
  * @param currentTrackUri - Spotify URI of the currently playing track (e.g., "spotify:track:...")
  * @returns Current background preset and props
+ *
+ * Features:
+ * - Rotates through backgrounds every 5 minutes
+ * - Applies +25° hue shift per cycle (completes 360° in ~14.4 cycles = 9.6 hours)
+ * - Prevents visual repetition over extended viewing sessions
  *
  * NOTE: Special song color filters are currently DISABLED (needs calibration work).
  *       See commented code in calculateProps() to re-enable.
@@ -29,12 +34,19 @@ export function useBackgroundRotation(currentTrackUri?: string): BackgroundState
   const [currentIndex, setCurrentIndex] = useState(0);
   const [nextIndex, setNextIndex] = useState<number | null>(null);
   const [isTransitioning, setIsTransitioning] = useState(false);
+  const [cycleCount, setCycleCount] = useState(0);
 
   // Rotate backgrounds on timer
   useEffect(() => {
     const interval = setInterval(() => {
       // Step 1: Set next background (renders at opacity 0)
-      setNextIndex((currentIndex + 1) % BACKGROUNDS.length);
+      const nextIdx = (currentIndex + 1) % BACKGROUNDS.length;
+      setNextIndex(nextIdx);
+
+      // Increment cycle count when we wrap back to first background
+      if (nextIdx === 0) {
+        setCycleCount((prev) => prev + 1);
+      }
 
       // Step 2: After a brief delay, start transition (triggers fade)
       setTimeout(() => {
@@ -57,6 +69,17 @@ export function useBackgroundRotation(currentTrackUri?: string): BackgroundState
     return (preset: BackgroundPreset) => {
       // Start with default props
       let calculatedProps = { ...preset.defaultProps };
+
+      // ============================================================================
+      // CYCLE-BASED HUE SHIFTING
+      // ============================================================================
+      // Apply +25° hue shift per cycle (completes 360° in ~14.4 cycles = 9.6 hours)
+      // This prevents visual repetition and creates evolving color palettes
+      const cycleHueShift = cycleCount * 25;
+
+      // Add to existing hueRotate (if any)
+      const baseHueRotate = calculatedProps.hueRotate || 0;
+      calculatedProps.hueRotate = (baseHueRotate + cycleHueShift) % 360;
 
       // ============================================================================
       // SPECIAL SONG COLOR FILTERS - CURRENTLY DISABLED
@@ -86,7 +109,7 @@ export function useBackgroundRotation(currentTrackUri?: string): BackgroundState
 
       return calculatedProps;
     };
-  }, [currentTrackUri]);
+  }, [currentTrackUri, cycleCount]);
 
   // Get current background
   const currentPreset = BACKGROUNDS[currentIndex];

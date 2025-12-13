@@ -41,6 +41,9 @@ export function BackgroundRecorder() {
         case '4':
         case '5':
         case '6':
+        case '7':
+        case '8':
+        case '9':
           const index = parseInt(e.key) - 1;
           if (index < RECORDING_BACKGROUNDS.length) {
             setCurrentIndex(index);
@@ -89,7 +92,7 @@ export function BackgroundRecorder() {
               </p>
               <div className="space-y-2 text-lg">
                 <div><kbd className="bg-white/20 px-3 py-1 rounded">←</kbd> <kbd className="bg-white/20 px-3 py-1 rounded">→</kbd> Switch backgrounds</div>
-                <div><kbd className="bg-white/20 px-3 py-1 rounded">1-6</kbd> Jump to specific background</div>
+                <div><kbd className="bg-white/20 px-3 py-1 rounded">1-9</kbd> Jump to specific background</div>
                 <div><kbd className="bg-white/20 px-3 py-1 rounded">Space</kbd> Pause/Resume</div>
                 <div><kbd className="bg-white/20 px-3 py-1 rounded">H</kbd> Toggle this help</div>
               </div>

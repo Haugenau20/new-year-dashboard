@@ -1,4 +1,4 @@
-import { useRef, useEffect } from 'react';
+import { useRef, useEffect, useState } from 'react';
 
 interface VideoBackgroundProps {
   src: string;
@@ -6,6 +6,9 @@ interface VideoBackgroundProps {
   saturation?: number;
   brightness?: number;
   opacity?: number;
+  seamlessLoop?: boolean; // Enable self-crossfading for seamless loops
+  videoDuration?: number; // Total video duration in seconds (e.g., 75)
+  crossfadeDuration?: number; // Crossfade duration in seconds (e.g., 5)
 }
 
 export default function VideoBackground({
@@ -13,41 +16,149 @@ export default function VideoBackground({
   hueRotate = 0,
   saturation = 100,
   brightness = 100,
-  opacity = 0.6
+  opacity = 0.6,
+  seamlessLoop = false,
+  videoDuration = 75,
+  crossfadeDuration = 5
 }: VideoBackgroundProps) {
-  const videoRef = useRef<HTMLVideoElement>(null);
+  const videoARef = useRef<HTMLVideoElement>(null);
+  const videoBRef = useRef<HTMLVideoElement>(null);
+  const [videoAOpacity, setVideoAOpacity] = useState(1);
+  const [videoBOpacity, setVideoBOpacity] = useState(0);
 
   useEffect(() => {
-    const video = videoRef.current;
-    if (!video) return;
+    if (!seamlessLoop) {
+      // Standard looping behavior
+      const video = videoARef.current;
+      if (!video) return;
 
-    // Ensure video plays (some browsers require explicit play call)
-    const playPromise = video.play();
-
-    if (playPromise !== undefined) {
-      playPromise.catch(error => {
-        // Auto-play was prevented
-        console.warn('Video autoplay failed:', error);
-      });
+      const playPromise = video.play();
+      if (playPromise !== undefined) {
+        playPromise.catch(error => {
+          console.warn('Video autoplay failed:', error);
+        });
+      }
+      return;
     }
-  }, [src]);
 
+    // Seamless loop behavior with self-crossfading
+    const videoA = videoARef.current;
+    const videoB = videoBRef.current;
+    if (!videoA || !videoB) return;
+
+    const crossfadeStart = videoDuration - crossfadeDuration;
+    let activeVideo: 'A' | 'B' = 'A';
+
+    // Start video A
+    videoA.play().catch(error => {
+      console.warn('Video A autoplay failed:', error);
+    });
+
+    const handleTimeUpdate = (video: HTMLVideoElement, isVideoA: boolean) => {
+      const currentTime = video.currentTime;
+
+      if (currentTime >= crossfadeStart && currentTime < videoDuration) {
+        // In crossfade zone
+        const progress = (currentTime - crossfadeStart) / crossfadeDuration;
+
+        if (isVideoA && activeVideo === 'A') {
+          // Video A is active and in crossfade zone - start B and crossfade
+          if (videoBRef.current && videoBRef.current.paused) {
+            videoBRef.current.currentTime = 0;
+            videoBRef.current.play();
+          }
+          setVideoAOpacity(1 - progress);
+          setVideoBOpacity(progress);
+
+          if (progress >= 0.99) {
+            activeVideo = 'B';
+          }
+        } else if (!isVideoA && activeVideo === 'B') {
+          // Video B is active and in crossfade zone - start A and crossfade
+          if (videoARef.current && videoARef.current.paused) {
+            videoARef.current.currentTime = 0;
+            videoARef.current.play();
+          }
+          setVideoBOpacity(1 - progress);
+          setVideoAOpacity(progress);
+
+          if (progress >= 0.99) {
+            activeVideo = 'A';
+          }
+        }
+      }
+    };
+
+    const handleATimeUpdate = () => handleTimeUpdate(videoA, true);
+    const handleBTimeUpdate = () => handleTimeUpdate(videoB, false);
+
+    videoA.addEventListener('timeupdate', handleATimeUpdate);
+    videoB.addEventListener('timeupdate', handleBTimeUpdate);
+
+    return () => {
+      videoA.removeEventListener('timeupdate', handleATimeUpdate);
+      videoB.removeEventListener('timeupdate', handleBTimeUpdate);
+    };
+  }, [src, seamlessLoop, videoDuration, crossfadeDuration]);
+
+  const videoStyle = {
+    width: '100%',
+    height: '100%',
+    objectFit: 'cover' as const,
+    position: 'absolute' as const,
+    top: 0,
+    left: 0,
+    filter: `hue-rotate(${hueRotate}deg) saturate(${saturation}%) brightness(${brightness}%)`
+  };
+
+  if (!seamlessLoop) {
+    // Standard single video with loop
+    return (
+      <video
+        ref={videoARef}
+        src={src}
+        autoPlay
+        loop
+        muted
+        playsInline
+        style={{
+          ...videoStyle,
+          opacity
+        }}
+      />
+    );
+  }
+
+  // Seamless loop with two videos crossfading
   return (
-    <video
-      ref={videoRef}
-      src={src}
-      autoPlay
-      loop
-      muted
-      playsInline
-      style={{
-        width: '100%',
-        height: '100%',
-        objectFit: 'cover',
-        opacity,
-        // Videos recorded with color baked in - filters shift those colors for special songs
-        filter: `hue-rotate(${hueRotate}deg) saturate(${saturation}%) brightness(${brightness}%)`
-      }}
-    />
+    <div style={{ position: 'relative', width: '100%', height: '100%' }}>
+      <video
+        ref={videoARef}
+        src={src}
+        autoPlay
+        loop
+        muted
+        playsInline
+        preload="auto"
+        style={{
+          ...videoStyle,
+          opacity: videoAOpacity * opacity,
+          transition: 'opacity 0.1s linear'
+        }}
+      />
+      <video
+        ref={videoBRef}
+        src={src}
+        loop
+        muted
+        playsInline
+        preload="auto"
+        style={{
+          ...videoStyle,
+          opacity: videoBOpacity * opacity,
+          transition: 'opacity 0.1s linear'
+        }}
+      />
+    </div>
   );
 }

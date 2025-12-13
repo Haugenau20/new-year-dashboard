@@ -76,7 +76,7 @@ export const NowPlaying = memo(function NowPlaying({ spotifyPlayback }: NowPlayi
 
   return (
     <>
-      <div className="w-full max-w-[700px] xl-dashboard:max-w-[600px] sm-dashboard:max-w-[300px] aspect-square rounded-[20px] sm-dashboard:rounded-[15px] overflow-hidden shadow-album">
+      <div className="w-full max-w-[700px] xl-dashboard:max-w-[600px] sm-dashboard:max-w-[200px] aspect-square rounded-[20px] sm-dashboard:rounded-[15px] overflow-hidden shadow-album">
         {imageUrl ? (
           <img src={imageUrl} alt="Album Art" className="w-full h-full object-cover" />
         ) : (

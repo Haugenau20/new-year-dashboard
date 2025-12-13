@@ -119,14 +119,17 @@ export function useBackgroundRotation(currentTrackUri?: string): BackgroundState
   const nextPreset = nextIndex !== null ? BACKGROUNDS[nextIndex] : null;
   const nextProps = useMemo(() => nextPreset ? calculateProps(nextPreset) : null, [calculateProps, nextPreset]);
 
-  // Preload next video for smooth transitions
+  // Predictive preloading: Start loading the NEXT background as soon as current becomes active
+  // This gives the full 5-minute interval for buffering instead of just 50ms
   useEffect(() => {
-    if (nextPreset && nextProps && 'src' in nextProps) {
+    const upcomingIndex = (currentIndex + 1) % BACKGROUNDS.length;
+    const upcomingPreset = BACKGROUNDS[upcomingIndex];
+    const upcomingProps = calculateProps(upcomingPreset);
+
+    if (upcomingProps && 'src' in upcomingProps) {
       const video = document.createElement('video');
       video.preload = 'auto';
-      video.src = nextProps.src as string;
-
-      // Optional: Actually load the video
+      video.src = upcomingProps.src as string;
       video.load();
 
       // Cleanup
@@ -134,7 +137,7 @@ export function useBackgroundRotation(currentTrackUri?: string): BackgroundState
         video.src = '';
       };
     }
-  }, [nextPreset, nextProps]);
+  }, [currentIndex, calculateProps]);
 
   // Special song detection logging (disabled since color filters are disabled)
   // useEffect(() => {

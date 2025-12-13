@@ -127,4 +127,4 @@ export const BACKGROUNDS: BackgroundPreset[] = [
 export const ROTATION_INTERVAL_MS = 300000;
 
 // Transition duration (20% of rotation interval for smooth crossfade)
-export const TRANSITION_DURATION_MS = ROTATION_INTERVAL_MS / 5; // 6 seconds
+export const TRANSITION_DURATION_MS = ROTATION_INTERVAL_MS / 30; // 10 seconds

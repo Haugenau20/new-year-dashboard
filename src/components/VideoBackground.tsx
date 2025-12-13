@@ -25,6 +25,7 @@ export default function VideoBackground({
   const videoBRef = useRef<HTMLVideoElement>(null);
   const [videoAOpacity, setVideoAOpacity] = useState(1);
   const [videoBOpacity, setVideoBOpacity] = useState(0);
+  const [actualDuration, setActualDuration] = useState(videoDuration);
 
   useEffect(() => {
     if (!seamlessLoop) {
@@ -46,7 +47,20 @@ export default function VideoBackground({
     const videoB = videoBRef.current;
     if (!videoA || !videoB) return;
 
-    const crossfadeStart = videoDuration - crossfadeDuration;
+    // Detect actual video duration when metadata loads
+    const handleMetadataLoaded = (video: HTMLVideoElement) => {
+      if (video.duration && isFinite(video.duration)) {
+        setActualDuration(video.duration);
+      }
+    };
+
+    const handleAMetadata = () => handleMetadataLoaded(videoA);
+    const handleBMetadata = () => handleMetadataLoaded(videoB);
+
+    videoA.addEventListener('loadedmetadata', handleAMetadata);
+    videoB.addEventListener('loadedmetadata', handleBMetadata);
+
+    const crossfadeStart = actualDuration - crossfadeDuration;
     let activeVideo: 'A' | 'B' = 'A';
 
     // Start video A
@@ -57,7 +71,7 @@ export default function VideoBackground({
     const handleTimeUpdate = (video: HTMLVideoElement, isVideoA: boolean) => {
       const currentTime = video.currentTime;
 
-      if (currentTime >= crossfadeStart && currentTime < videoDuration) {
+      if (currentTime >= crossfadeStart && currentTime < actualDuration) {
         // In crossfade zone
         const progress = (currentTime - crossfadeStart) / crossfadeDuration;
 
@@ -70,7 +84,7 @@ export default function VideoBackground({
           setVideoAOpacity(1 - progress);
           setVideoBOpacity(progress);
 
-          if (progress >= 0.99) {
+          if (progress >= 0.95) {
             activeVideo = 'B';
           }
         } else if (!isVideoA && activeVideo === 'B') {
@@ -82,24 +96,41 @@ export default function VideoBackground({
           setVideoBOpacity(1 - progress);
           setVideoAOpacity(progress);
 
-          if (progress >= 0.99) {
+          if (progress >= 0.95) {
             activeVideo = 'A';
           }
         }
       }
     };
 
+    // Fallback: If video ends without proper crossfade, restart it
+    const handleVideoEnded = (video: HTMLVideoElement, isVideoA: boolean) => {
+      if (video && !video.paused) {
+        video.currentTime = 0;
+        video.play();
+      }
+    };
+
+    const handleAEnded = () => handleVideoEnded(videoA, true);
+    const handleBEnded = () => handleVideoEnded(videoB, false);
+
     const handleATimeUpdate = () => handleTimeUpdate(videoA, true);
     const handleBTimeUpdate = () => handleTimeUpdate(videoB, false);
 
     videoA.addEventListener('timeupdate', handleATimeUpdate);
     videoB.addEventListener('timeupdate', handleBTimeUpdate);
+    videoA.addEventListener('ended', handleAEnded);
+    videoB.addEventListener('ended', handleBEnded);
 
     return () => {
+      videoA.removeEventListener('loadedmetadata', handleAMetadata);
+      videoB.removeEventListener('loadedmetadata', handleBMetadata);
       videoA.removeEventListener('timeupdate', handleATimeUpdate);
       videoB.removeEventListener('timeupdate', handleBTimeUpdate);
+      videoA.removeEventListener('ended', handleAEnded);
+      videoB.removeEventListener('ended', handleBEnded);
     };
-  }, [src, seamlessLoop, videoDuration, crossfadeDuration]);
+  }, [src, seamlessLoop, actualDuration, crossfadeDuration]);
 
   const videoStyle = {
     width: '100%',
@@ -143,7 +174,7 @@ export default function VideoBackground({
         style={{
           ...videoStyle,
           opacity: videoAOpacity * opacity,
-          transition: 'opacity 0.1s linear'
+          transition: `opacity ${crossfadeDuration}s linear`
         }}
       />
       <video
@@ -156,7 +187,7 @@ export default function VideoBackground({
         style={{
           ...videoStyle,
           opacity: videoBOpacity * opacity,
-          transition: 'opacity 0.1s linear'
+          transition: `opacity ${crossfadeDuration}s linear`
         }}
       />
     </div>

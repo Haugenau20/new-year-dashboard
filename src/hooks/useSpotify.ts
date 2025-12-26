@@ -8,9 +8,12 @@ interface SpotifyState {
   isAuthenticated: boolean;
   isLoading: boolean;
   error: string | null;
+  pollInterval: number; // Current polling interval in ms
 }
 
-const POLL_INTERVAL = 3000; // Poll every 3 seconds
+const POLL_INTERVAL_NORMAL = 3000; // Poll every 3 seconds
+const POLL_INTERVAL_AFTER_FIRST_RATE_LIMIT = 5000; // Poll every 5 seconds after first rate limit
+const POLL_INTERVAL_AFTER_SECOND_RATE_LIMIT = 10000; // Poll every 10 seconds after second rate limit
 
 /**
  * Compare Spotify playback states to detect actual changes
@@ -55,6 +58,7 @@ export function useSpotify(spotifyService: SpotifyService | null) {
     isAuthenticated: false,
     isLoading: true,
     error: null,
+    pollInterval: POLL_INTERVAL_NORMAL,
   });
 
   useEffect(() => {
@@ -72,8 +76,17 @@ export function useSpotify(spotifyService: SpotifyService | null) {
     }
 
     let isMounted = true;
+    let currentInterval: NodeJS.Timeout | null = null;
 
     const fetchData = async () => {
+      // Skip fetch if we're currently rate limited
+      if (spotifyService.isRateLimited()) {
+        if (process.env.NODE_ENV === 'development') {
+          console.log('⏸️  Skipping fetch - rate limited');
+        }
+        return;
+      }
+
       try {
         const [playback, queue] = await Promise.all([
           spotifyService.getCurrentPlayback(),
@@ -112,6 +125,14 @@ export function useSpotify(spotifyService: SpotifyService | null) {
         });
       } catch (error) {
         if (!isMounted) return;
+
+        // Log rate limit errors in development
+        if (process.env.NODE_ENV === 'development' && error instanceof Error) {
+          if (error.message.includes('Rate limited')) {
+            console.warn('⚠️ ', error.message);
+          }
+        }
+
         // Silently handle errors
         setState((prev) => ({
           ...prev,
@@ -121,15 +142,38 @@ export function useSpotify(spotifyService: SpotifyService | null) {
       }
     };
 
-    // Initial fetch
-    fetchData();
+    const setupPolling = () => {
+      // Determine polling interval based on rate limit history
+      const rateLimitCount = spotifyService.getRateLimitCount();
+      let pollInterval = POLL_INTERVAL_NORMAL;
 
-    // Poll for updates
-    const interval = setInterval(fetchData, POLL_INTERVAL);
+      if (rateLimitCount >= 2) {
+        pollInterval = POLL_INTERVAL_AFTER_SECOND_RATE_LIMIT;
+      } else if (rateLimitCount === 1) {
+        pollInterval = POLL_INTERVAL_AFTER_FIRST_RATE_LIMIT;
+      }
+
+      // Update state with current poll interval
+      setState((prev) => ({ ...prev, pollInterval }));
+
+      if (process.env.NODE_ENV === 'development') {
+        console.log(`🔄 Polling interval: ${pollInterval}ms (rate limits: ${rateLimitCount})`);
+      }
+
+      // Initial fetch
+      fetchData();
+
+      // Poll for updates
+      currentInterval = setInterval(fetchData, pollInterval);
+    };
+
+    setupPolling();
 
     return () => {
       isMounted = false;
-      clearInterval(interval);
+      if (currentInterval) {
+        clearInterval(currentInterval);
+      }
     };
   }, [spotifyService]);
 

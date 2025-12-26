@@ -1,101 +1,50 @@
-import {
-  createConnection,
-  subscribeEntities,
-  HassEntities,
-  Connection,
-  Auth,
-  createLongLivedTokenAuth,
-} from 'home-assistant-js-websocket';
+export interface HomeAssistantConfig {
+  url: string;
+  token: string;
+}
 
 export class HomeAssistantService {
-  private connection: Connection | null = null;
-  private auth: Auth | null = null;
-  private reconnectTimer: number | null = null;
-  private subscribers: Set<(entities: HassEntities) => void> = new Set();
+  private config: HomeAssistantConfig;
 
-  constructor(
-    private url: string,
-    private token: string
-  ) {}
+  constructor(config: HomeAssistantConfig) {
+    this.config = config;
+  }
 
-  async connect(): Promise<void> {
+  /**
+   * Reads the NFC queue tracker entity from Home Assistant
+   * Returns array of Spotify track URIs that were queued via NFC
+   */
+  async getNFCQueueTracker(): Promise<string[]> {
     try {
-      // Create auth with long-lived access token
-      this.auth = createLongLivedTokenAuth(this.url, this.token);
+      const response = await fetch(
+        `${this.config.url}/api/states/input_text.nfc_queue_tracker`,
+        {
+          headers: {
+            Authorization: `Bearer ${this.config.token}`,
+            'Content-Type': 'application/json',
+          },
+        }
+      );
 
-      // Create connection
-      this.connection = await createConnection({ auth: this.auth });
+      if (!response.ok) {
+        throw new Error(`HA API error: ${response.statusText}`);
+      }
 
-      console.log('Connected to Home Assistant');
+      const data = await response.json();
+      const value = data.state || '';
 
-      // Subscribe to entity updates
-      subscribeEntities(this.connection, (entities) => {
-        this.notifySubscribers(entities);
-      });
+      // Parse comma-separated URIs
+      if (!value || value.trim() === '') {
+        return [];
+      }
 
-      // Handle connection loss
-      this.connection.addEventListener('ready', () => {
-        console.log('Home Assistant connection ready');
-      });
-
-      this.connection.addEventListener('disconnected', () => {
-        console.log('Disconnected from Home Assistant');
-        this.scheduleReconnect();
-      });
-
-      this.connection.addEventListener('reconnect-error', () => {
-        console.error('Reconnection failed');
-        this.scheduleReconnect();
-      });
+      return value
+        .split(',')
+        .map((uri: string) => uri.trim())
+        .filter((uri: string) => uri.length > 0);
     } catch (error) {
-      console.error('Failed to connect to Home Assistant:', error);
-      this.scheduleReconnect();
-      throw error;
+      console.error('Error fetching NFC queue tracker:', error);
+      return [];
     }
-  }
-
-  private scheduleReconnect(): void {
-    if (this.reconnectTimer) {
-      clearTimeout(this.reconnectTimer);
-    }
-
-    // Try to reconnect after 5 seconds
-    this.reconnectTimer = setTimeout(() => {
-      console.log('Attempting to reconnect...');
-      this.connect().catch((error) => {
-        console.error('Reconnection attempt failed:', error);
-      });
-    }, 5000) as unknown as number;
-  }
-
-  subscribe(callback: (entities: HassEntities) => void): () => void {
-    this.subscribers.add(callback);
-
-    // Return unsubscribe function
-    return () => {
-      this.subscribers.delete(callback);
-    };
-  }
-
-  private notifySubscribers(entities: HassEntities): void {
-    this.subscribers.forEach((callback) => callback(entities));
-  }
-
-  disconnect(): void {
-    if (this.reconnectTimer) {
-      clearTimeout(this.reconnectTimer);
-      this.reconnectTimer = null;
-    }
-
-    if (this.connection) {
-      this.connection.close();
-      this.connection = null;
-    }
-
-    this.subscribers.clear();
-  }
-
-  isConnected(): boolean {
-    return this.connection !== null;
   }
 }

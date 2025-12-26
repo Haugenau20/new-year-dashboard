@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useSpotify } from './hooks/useSpotify';
+import { useNFCQueue } from './hooks/useNFCQueue';
 import { useBackgroundRotation } from './hooks/useBackgroundRotation';
 import { NowPlaying } from './components/NowPlaying';
 import { QueueDisplay } from './components/QueueDisplay';
@@ -10,41 +11,34 @@ import { SpotifyCallback } from './pages/SpotifyCallback';
 import { BackgroundRecorder } from './pages/BackgroundRecorder';
 import { BorderRecorder } from './pages/BorderRecorder';
 import { SpotifyService } from './services/spotify';
+import { HomeAssistantService } from './services/homeAssistant';
 import { TRANSITION_DURATION_MS } from './config/backgrounds';
 
 // Load configuration from environment variables
 const SPOTIFY_CLIENT_ID = import.meta.env.VITE_SPOTIFY_CLIENT_ID || '';
 const SPOTIFY_REDIRECT_URI = import.meta.env.VITE_SPOTIFY_REDIRECT_URI || 'http://127.0.0.1:3001/callback';
 const FIREBASE_FUNCTIONS_URL = import.meta.env.VITE_FIREBASE_FUNCTIONS_URL || '';
+const HA_URL = import.meta.env.VITE_HA_URL || '';
+const HA_TOKEN = import.meta.env.VITE_HA_TOKEN || '';
 
 function App() {
   const [spotifyService, setSpotifyService] = useState<SpotifyService | null>(null);
+  const [haService, setHaService] = useState<HomeAssistantService | null>(null);
   const [isCallback, setIsCallback] = useState(false);
   const [isDevPage, setIsDevPage] = useState(false);
   const [isBorderRecordPage, setIsBorderRecordPage] = useState(false);
+  const [isSecondaryPage, setIsSecondaryPage] = useState(false);
   const [configError, setConfigError] = useState<string | null>(null);
 
   const spotifyState = useSpotify(spotifyService);
   const background = useBackgroundRotation(spotifyState.playback?.item?.uri);
 
-  // Handle GitHub Pages SPA redirect from 404.html
-  useEffect(() => {
-    // Check if we're being redirected from 404.html
-    const query = window.location.search;
-    if (query && query.startsWith('?/')) {
-      const path = query.slice(2).split('&')[0].replace(/~and~/g, '&');
-      window.history.replaceState(null, '', '/' + path);
-    }
-  }, []);
+  // Only use NFC queue on main page (not secondary)
+  const nfcQueue = useNFCQueue(haService, spotifyState.pollInterval, !isSecondaryPage);
 
   // Check if we're on special routes
   useEffect(() => {
-    // Get pathname and strip the base path for GitHub Pages
-    let pathname = window.location.pathname;
-    const basePath = '/new-year-dashboard';
-    if (pathname.startsWith(basePath)) {
-      pathname = pathname.slice(basePath.length) || '/';
-    }
+    const pathname = window.location.pathname;
 
     if (pathname === '/callback') {
       setIsCallback(true);
@@ -52,6 +46,8 @@ function App() {
       setIsDevPage(true);
     } else if (pathname === '/border-record') {
       setIsBorderRecordPage(true);
+    } else if (pathname === '/secondary') {
+      setIsSecondaryPage(true);
     }
   }, []);
 
@@ -76,13 +72,23 @@ function App() {
     }
   }, []);
 
+  // Initialize Home Assistant service (optional)
+  useEffect(() => {
+    if (HA_URL && HA_TOKEN) {
+      const service = new HomeAssistantService({
+        url: HA_URL,
+        token: HA_TOKEN,
+      });
+      setHaService(service);
+    }
+  }, []);
+
   // Handle Spotify OAuth callback
   const handleSpotifyCallback = async (code: string) => {
     if (spotifyService) {
       try {
         await spotifyService.handleCallback(code);
-        // Use relative path for proper base path handling
-        window.location.href = import.meta.env.BASE_URL || '/';
+        window.location.href = '/';
       } catch (error) {
         console.error('Failed to complete Spotify authentication:', error);
       }
@@ -91,8 +97,7 @@ function App() {
 
   const handleSpotifyCallbackError = (error: string) => {
     console.error('Spotify authentication error:', error);
-    // Use relative path for proper base path handling
-    window.location.href = import.meta.env.BASE_URL || '/';
+    window.location.href = '/';
   };
 
   // Handle special pages
@@ -211,7 +216,9 @@ function App() {
         <div className="absolute inset-0 z-20 pointer-events-none">
           {/* Top Left - Special Songs */}
           <div className="absolute top-8 left-8 sm-dashboard:top-4 sm-dashboard:left-4 pointer-events-auto">
-            {spotifyState.isAuthenticated && <QueueDisplay queue={spotifyState.queue} />}
+            {spotifyState.isAuthenticated && !isSecondaryPage && (
+              <QueueDisplay queue={spotifyState.queue} nfcQueue={nfcQueue} />
+            )}
           </div>
 
           {/* Top Right - Countdown Timers */}

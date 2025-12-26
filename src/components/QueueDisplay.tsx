@@ -5,6 +5,7 @@ import DiscoBorder from './DiscoBorder';
 
 interface QueueDisplayProps {
   queue: SpotifyQueue | null;
+  nfcQueue: string[]; // URIs of songs queued via NFC
 }
 
 function isSpecialSong(track: SpotifyTrack): { isSpecial: boolean; label?: string } {
@@ -30,11 +31,16 @@ function isSpecialSong(track: SpotifyTrack): { isSpecial: boolean; label?: strin
   return { isSpecial: false };
 }
 
-export const QueueDisplay = memo(function QueueDisplay({ queue }: QueueDisplayProps) {
+export const QueueDisplay = memo(function QueueDisplay({ queue, nfcQueue }: QueueDisplayProps) {
   const upcomingTracks = queue?.queue.slice(0, 5) || [];
 
-  // Filter to get only special songs from queue
-  const specialSongs = upcomingTracks.filter(track => isSpecialSong(track).isSpecial);
+  // Only show songs that are BOTH:
+  // 1. In the special songs list
+  // 2. In the NFC queue tracker (queued via NFC)
+  const specialSongs = upcomingTracks.filter(track => {
+    const { isSpecial } = isSpecialSong(track);
+    return isSpecial && nfcQueue.includes(track.uri);
+  });
 
   // Get the first special song and any additional ones
   const nextSpecialSong = specialSongs[0];

@@ -16,6 +16,8 @@ jobs:
           echo "VITE_SPOTIFY_CLIENT_ID=${{ secrets.VITE_SPOTIFY_CLIENT_ID }}" >> .env
           echo "VITE_SPOTIFY_REDIRECT_URI=${{ secrets.VITE_SPOTIFY_REDIRECT_URI }}" >> .env
           echo "VITE_FIREBASE_FUNCTIONS_URL=${{ secrets.VITE_FIREBASE_FUNCTIONS_URL }}" >> .env
+          echo "VITE_HA_URL=${{ secrets.VITE_HA_URL }}" >> .env
+          echo "VITE_HA_TOKEN=${{ secrets.VITE_HA_TOKEN }}" >> .env
       - run: npm ci && npm run build
       - uses: FirebaseExtended/action-hosting-deploy@v0
         with:

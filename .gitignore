@@ -140,3 +140,6 @@ vite.config.ts.timestamp-*
 
 # Video files - deployed separately to Firebase
 public/assets/videos/*.mp4
+
+# Generated Home Assistant automations
+home-assistant-automations.txt

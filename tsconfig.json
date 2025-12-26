@@ -26,6 +26,6 @@
       "@/*": ["./src/*"]
     }
   },
-  "include": ["src"],
+  "include": ["src", "src/components/ColorBends.tsx", "src/components/DarkVeil.tsx", "src/components/FloatingLines.tsx", "src/components/Galaxy.tsx", "src/components/Iridescence.tsx", "src/components/LightPillar.tsx", "src/components/Particles.tsx", "src/components/Prism.tsx", "src/components/PrismaticBurst.tsx"],
   "references": [{ "path": "./tsconfig.node.json" }]
 }

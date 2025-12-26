@@ -13,6 +13,9 @@ const SPOTIFY_ACCOUNTS_BASE = 'https://accounts.spotify.com';
 export class SpotifyService {
   private config: SpotifyConfig;
   private tokens: SpotifyTokens | null = null;
+  private rateLimitedUntil: number = 0;
+  private rateLimitCount: number = 0;
+  private rateLimitFirstOccurrence: number = 0;
 
   constructor(config: SpotifyConfig) {
     this.config = config;
@@ -121,11 +124,35 @@ export class SpotifyService {
   private async spotifyRequest<T>(endpoint: string): Promise<T> {
     await this.ensureValidToken();
 
+    // Check if we're currently rate limited
+    if (this.isRateLimited()) {
+      const waitTime = Math.ceil((this.rateLimitedUntil - Date.now()) / 1000);
+      throw new Error(`Rate limited. Retry after ${waitTime} seconds`);
+    }
+
     const response = await fetch(`${SPOTIFY_API_BASE}${endpoint}`, {
       headers: {
         Authorization: `Bearer ${this.tokens!.access_token}`,
       },
     });
+
+    if (response.status === 429) {
+      // Handle rate limiting
+      const retryAfter = response.headers.get('Retry-After');
+      const retryAfterSeconds = retryAfter ? parseInt(retryAfter, 10) : 60;
+
+      this.rateLimitedUntil = Date.now() + retryAfterSeconds * 1000;
+
+      // Track first occurrence for 24-hour reset
+      if (this.rateLimitCount === 0) {
+        this.rateLimitFirstOccurrence = Date.now();
+      }
+
+      this.rateLimitCount++;
+
+      console.warn(`Rate limited by Spotify (occurrence #${this.rateLimitCount}). Retry after ${retryAfterSeconds} seconds`);
+      throw new Error(`Rate limited. Retry after ${retryAfterSeconds} seconds`);
+    }
 
     if (response.status === 401) {
       // Token might be invalid, try refreshing
@@ -177,6 +204,29 @@ export class SpotifyService {
       // Silently fail - playlist may not be available or accessible
       return null;
     }
+  }
+
+  // Rate Limit Management
+  isRateLimited(): boolean {
+    return Date.now() < this.rateLimitedUntil;
+  }
+
+  getRateLimitCount(): number {
+    // Reset count if 24 hours have passed since first rate limit
+    const TWENTY_FOUR_HOURS = 24 * 60 * 60 * 1000;
+    if (
+      this.rateLimitCount > 0 &&
+      this.rateLimitFirstOccurrence > 0 &&
+      Date.now() - this.rateLimitFirstOccurrence >= TWENTY_FOUR_HOURS
+    ) {
+      if (process.env.NODE_ENV === 'development') {
+        console.log('🔄 Resetting rate limit counter after 24 hours');
+      }
+      this.rateLimitCount = 0;
+      this.rateLimitFirstOccurrence = 0;
+    }
+
+    return this.rateLimitCount;
   }
 
   // Token Management

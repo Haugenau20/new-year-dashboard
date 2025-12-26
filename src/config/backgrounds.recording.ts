@@ -5,10 +5,10 @@ import Iridescence from '../components/Iridescence';
 import Prism from '../components/Prism';
 import PrismaticBurst from '../components/PrismaticBurst';
 import { BackgroundPreset } from './backgrounds';
-import Galaxy from '@/components/Galaxy';
-import LightPillar from '@/components/LightPillar';
-import FloatingLines from '@/components/FloatingLines';
-import Particles from '@/components/Particles';
+import Galaxy from '../components/Galaxy';
+import LightPillar from '../components/LightPillar';
+import FloatingLines from '../components/FloatingLines';
+import Particles from '../components/Particles';
 
 export const RECORDING_BACKGROUNDS: BackgroundPreset[] = [
   {

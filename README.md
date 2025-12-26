@@ -1,30 +1,31 @@
 # New Year's Party Dashboard
 
-A real-time music and smart home status display for parties, designed to run on a TV via Raspberry Pi. Connects to Home Assistant to display currently playing music from Spotify, active speakers, playlists, and more.
+A real-time music visualization dashboard for parties, designed to run on a TV. Connects directly to Spotify to display currently playing music with dynamic animated backgrounds and countdown timers.
 
 ## Features
 
 - **Large Album Art Display**: Prominent currently playing track with album art visible from across the room
-- **Real-Time Updates**: Live WebSocket connection to Home Assistant for instant updates
-- **Multi-Speaker Support**: Shows status of multiple Bang & Olufsen speakers
-- **Playlist Information**: Current playlist/genre display
-- **Volume Control Display**: Visual volume indicator
-- **Automatic Reconnection**: Handles connection drops gracefully
+- **Real-Time Spotify Integration**: Direct Spotify API integration with OAuth authentication
+- **Dynamic Backgrounds**: Animated backgrounds that change based on what's playing
+- **Special Song Detection**: Automatically detects special songs and displays them in the queue
+- **Countdown Timers**: Midnight countdown and Kongens Tale (King's Speech) countdown for New Year's Eve
+- **Adaptive Rate Limiting**: Smart polling with automatic backoff to stay within Spotify API limits
 - **TV-Optimized UI**: Designed for 1920x1080 fullscreen display with dark party theme
 
 ## Tech Stack
 
 - React 18 + TypeScript
 - Vite for fast development and building
-- home-assistant-js-websocket for real-time Home Assistant integration
+- Spotify Web API with OAuth 2.0 authentication
+- Firebase Cloud Functions for secure token exchange
 - Modern CSS with gradient effects and animations
 
 ## Prerequisites
 
 - Node.js 18+ and npm
-- Home Assistant instance (local network)
-- Spotify integration configured in Home Assistant
-- Long-lived access token from Home Assistant
+- Spotify account (any account, not limited to specific users)
+- Spotify Developer App credentials
+- Firebase project (for Cloud Functions token exchange)
 
 ## Quick Start
 
@@ -46,28 +47,25 @@ cp .env.example .env
 
 Then edit `.env` and fill in your credentials:
 
-#### Home Assistant Configuration:
-1. **VITE_HA_URL**: Your Home Assistant URL (e.g., `http://homeassistant.local:8123` or `http://192.168.1.100:8123`)
-2. **VITE_HA_TOKEN**: Long-lived access token
-   - Go to your Home Assistant profile: `http://YOUR_HA_IP:8123/profile`
-   - Scroll down to "Long-Lived Access Tokens"
-   - Click "Create Token"
-   - Copy the token and paste it into your `.env` file
-
-#### Spotify API Configuration:
+#### Frontend Configuration (`.env`):
 1. **VITE_SPOTIFY_CLIENT_ID**: Your Spotify application Client ID
-2. **VITE_SPOTIFY_CLIENT_SECRET**: Your Spotify application Client Secret
-3. **VITE_SPOTIFY_REDIRECT_URI**: OAuth callback URL (default: `http://127.0.0.1:3001/callback`)
+2. **VITE_SPOTIFY_REDIRECT_URI**: OAuth callback URL (default: `http://127.0.0.1:5173/callback`)
+3. **VITE_FIREBASE_FUNCTIONS_URL**: Your Firebase Functions URL (e.g., `https://us-central1-your-project.cloudfunctions.net`)
+
+#### Backend Configuration (`functions/.env.local`):
+1. **SPOTIFY_CLIENT_ID**: Your Spotify application Client ID (same as frontend)
+2. **SPOTIFY_CLIENT_SECRET**: Your Spotify application Client Secret
 
 To get Spotify credentials:
 1. Go to [Spotify Developer Dashboard](https://developer.spotify.com/dashboard)
 2. Create a new app (choose "Web API")
-3. In app settings, add `http://127.0.0.1:3001/callback` to "Redirect URIs"
-   - Note: Spotify requires `127.0.0.1`, not `localhost`
-   - Use port 3001 (or whatever port your dev server is running on)
-4. Copy the Client ID and Client Secret to your `.env` file
+3. In app settings, add your redirect URI to "Redirect URIs"
+   - For local development: `http://127.0.0.1:5173/callback`
+   - For production: `https://your-firebase-project.web.app/callback` or your custom domain
+   - Note: Spotify requires `127.0.0.1`, not `localhost` for local development
+4. Copy the Client ID and Client Secret
 
-**Important**: Never commit your `.env` file to git! It contains secrets.
+**Important**: Never commit your `.env` or `functions/.env.local` files to git! They contain secrets.
 
 ### 3. Run Development Server
 
@@ -84,56 +82,35 @@ npm run build
 npm run preview
 ```
 
-## Required Home Assistant Entities
-
-The dashboard expects these entities to be available:
-
-- `media_player.spotify_soren_kjaedegaard_haug` - Main Spotify player
-- `media_player.beoplay_m5_kontor` - Bang & Olufsen M5 (Office)
-- `media_player.beoconnect_core_stue` - Bang & Olufsen Core (Living Room)
-- `input_select.playlist_selector` - Playlist selector
-
-### Customizing Entity IDs
-
-If your entity IDs are different, edit `src/hooks/useHomeAssistant.ts`:
-
-```typescript
-const ENTITY_IDS = {
-  MAIN_PLAYER: 'media_player.your_spotify_player',
-  KONTOR_SPEAKER: 'media_player.your_speaker_1',
-  STUE_SPEAKER: 'media_player.your_speaker_2',
-  PLAYLIST_SELECTOR: 'input_select.your_playlist_selector',
-};
-```
-
 ## Deployment
 
-### GitHub Pages Deployment
+### Firebase Hosting Deployment
 
-The site is configured to automatically deploy to GitHub Pages when you push to the `main` branch.
+The site is configured to automatically deploy to Firebase Hosting when you push to the `main` branch.
 
 #### Initial Setup:
 
-1. Go to your repository settings on GitHub
-2. Navigate to **Settings** → **Pages**
-3. Under **Source**, select **GitHub Actions**
-4. Push your changes to the `main` branch
+1. Install Firebase CLI: `npm install -g firebase-tools`
+2. Login to Firebase: `firebase login`
+3. Initialize Firebase in your project (if not already done): `firebase init`
+4. Configure your Firebase Functions environment variables in `functions/.env.local`
 
-The GitHub Actions workflow will automatically:
+#### Automatic Deployment (GitHub Actions):
+
+The project includes GitHub Actions workflows that automatically:
 - Build the project
-- Deploy to GitHub Pages
-- Make the site available at `https://haugenau20.github.io/new-year-dashboard/`
+- Deploy to Firebase Hosting
+- Deploy Cloud Functions for OAuth token exchange
+- Trigger on pushes to `main` or pull requests
 
 #### Manual Deployment:
 
-If you prefer to deploy manually without GitHub Actions:
-
 ```bash
-npm install -g gh-pages
-npm run deploy
+npm run build
+firebase deploy
 ```
 
-Note: Environment variables (.env) are not included in the GitHub Pages deployment. You'll need to configure API keys and tokens separately if your deployment requires them at runtime.
+**Note:** Environment variables (`.env` and `functions/.env.local`) are not committed to git. Firebase Functions uses environment configuration for secrets.
 
 ### Deployment on Raspberry Pi
 
@@ -169,17 +146,25 @@ Create a systemd service or add to `/etc/xdg/lxsession/LXDE-pi/autostart`:
 ```
 new-year-dashboard/
 ├── src/
-│   ├── components/          # React components (future expansion)
+│   ├── components/          # React components (NowPlaying, QueueDisplay, etc.)
 │   ├── hooks/
-│   │   └── useHomeAssistant.ts  # Custom hook for HA connection
+│   │   ├── useSpotify.ts         # Spotify playback polling hook
+│   │   └── useBackgroundRotation.ts  # Background animation management
 │   ├── services/
-│   │   └── homeAssistant.ts     # WebSocket service
+│   │   └── spotify.ts            # Spotify API service
 │   ├── types/
-│   │   └── homeAssistant.ts     # TypeScript type definitions
+│   │   └── spotify.ts            # TypeScript type definitions
+│   ├── config/
+│   │   ├── backgrounds.ts        # Background configurations
+│   │   └── specialSongs.ts       # Special song detection
+│   ├── pages/
+│   │   ├── SpotifyCallback.tsx   # OAuth callback handler
+│   │   └── BackgroundRecorder.tsx # Dev tool for recording backgrounds
 │   ├── App.tsx              # Main application component
-│   ├── App.css              # Application styles
-│   ├── index.css            # Global styles
 │   └── main.tsx             # Application entry point
+├── functions/
+│   └── src/
+│       └── spotify-auth.ts  # Firebase Cloud Functions for token exchange
 ├── index.html
 ├── package.json
 ├── tsconfig.json
@@ -198,30 +183,43 @@ new-year-dashboard/
 
 ### TypeScript Types
 
-The project includes comprehensive TypeScript types for Home Assistant entities:
+The project includes comprehensive TypeScript types for Spotify entities:
 
-- `MediaPlayerEntity` - Media player state and attributes
-- `InputSelectEntity` - Input select state and options
-- `DashboardState` - Complete dashboard state
+- `SpotifyPlaybackState` - Current playback state and track information
+- `SpotifyQueue` - Queue information
+- `SpotifyTrack` - Track metadata (name, artists, album, URI)
+- `SpotifyTokens` - OAuth token storage
+
+### Rate Limiting
+
+The app implements intelligent rate limiting to stay within Spotify API quotas:
+
+- **Normal polling**: 3 seconds (40 requests/minute)
+- **After 1st rate limit**: 5 seconds (24 requests/minute)
+- **After 2nd+ rate limits**: 10 seconds (12 requests/minute)
+- **Automatic reset**: Rate limit counter resets after 24 hours
+
+The app automatically handles 429 responses by pausing requests during the `Retry-After` period.
 
 ## Troubleshooting
 
-### Connection Issues
+### Authentication Issues
 
-- **"Connection Error"**: Verify your Home Assistant URL and token
-- **"Disconnected"**: The app will automatically try to reconnect every 5 seconds
-- **CORS Issues**: Home Assistant should allow WebSocket connections from your network
+- **"Missing Spotify API configuration"**: Check that your `.env` file exists and contains `VITE_SPOTIFY_CLIENT_ID`
+- **OAuth redirect fails**: Verify the redirect URI in your Spotify Developer Dashboard matches your `.env` configuration
+- **Token refresh fails**: Check that Firebase Functions are deployed and `VITE_FIREBASE_FUNCTIONS_URL` is correct
 
-### Album Art Not Showing
+### No Music Showing
 
-- Ensure the Spotify integration is properly configured in Home Assistant
-- Check that the `entity_picture` attribute is available on your media player entity
-- Verify the Home Assistant URL in the configuration (should match HTTP/HTTPS with WS/WSS)
+- Make sure you're actively playing music on Spotify
+- The app requires an active Spotify session (Premium or Free)
+- Check browser console for API errors
 
-### Entities Not Found
+### Rate Limiting
 
-- Check entity IDs in Home Assistant Developer Tools → States
-- Update entity IDs in `src/hooks/useHomeAssistant.ts` if different
+- If you see "Rate limited" warnings, the app will automatically back off
+- Multiple instances using the same Spotify Developer App share rate limits
+- Consider using separate Spotify Developer Apps for each instance if running multiple dashboards
 
 ## Future Enhancements
 
@@ -242,4 +240,4 @@ Contributions welcome! This is also a portfolio piece, so suggestions for improv
 
 ---
 
-Built with React, TypeScript, and Home Assistant for an awesome New Year's party experience!
+Built with React, TypeScript, and Spotify Web API for an awesome New Year's party experience!

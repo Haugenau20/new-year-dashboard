@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+import { ArrowRight } from 'lucide-react';
 import { useCurrentTime } from '../hooks/useCurrentTime';
 
 export function MidnightCountdown() {
@@ -25,9 +26,15 @@ export function MidnightCountdown() {
   return (
     <div className="rounded-[12px] sm-dashboard:rounded-[10px] px-4 py-3 sm-dashboard:px-3 sm-dashboard:py-2">
       <div className="text-center">
-        <p className="text-xs text-white/50 mb-1 sm-dashboard:text-[0.65rem] uppercase tracking-wider font-semibold">
-          Nytår 2026
-        </p>
+        <div className="flex items-center justify-center gap-1.5 mb-1">
+          <p className="text-xs text-white/50 sm-dashboard:text-[0.65rem] uppercase tracking-wider font-semibold">
+            2025
+          </p>
+          <ArrowRight className="w-3 h-3 text-white/50 sm-dashboard:w-2.5 sm-dashboard:h-2.5" />
+          <p className="text-xs text-white/50 sm-dashboard:text-[0.65rem] uppercase tracking-wider font-semibold">
+            2026
+          </p>
+        </div>
         <p className="text-2xl sm-dashboard:text-xl text-white/50 font-mono font-bold tabular-nums">
           {timeRemaining}
         </p>

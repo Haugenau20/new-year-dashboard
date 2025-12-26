@@ -300,113 +300,113 @@ export const SPECIAL_SONGS: SpecialSong[] = [
     trackName: 'Mr Blue Sky',
     artistName: 'Electric Light Ochestra',
     uri: 'spotify:track:2RlgNHKcydI9sayD2Df2xp',
-    label: 'Nikolaj',
-    tag: ''
+    label: 'Brygmann',
+    tag: '04-7A-E8-AE-7A-26-81'
   },
   {
     trackName: 'The Rubberband Man',
     artistName: 'The Spinners',
     uri: 'spotify:track:13Mzsb8VzRSZ5w3pM48cn6',
-    label: 'Nikolaj',
-    tag: ''
+    label: 'Brygmann',
+    tag: '04-49-EF-AE-7A-26-81'
   },
   {
     trackName: 'She Bangs - English Version',
     artistName: 'Ricky Martin',
     uri: 'spotify:track:1uPrIHgYztXSkkcts9jet8',
-    label: 'Nikolaj',
-    tag: ''
+    label: 'Brygmann',
+    tag: '04-C5-F5-AE-7A-26-81'
   },
   {
     trackName: 'Just cant get enough',
     artistName: 'Depeche Mode',
     uri: 'spotify:track:0qi4b1l0eT3jpzeNHeFXDT',
-    label: 'Nikolaj',
-    tag: ''
+    label: 'Brygmann',
+    tag: '04-B7-15-AF-7A-26-81'
   },
   {
     trackName: 'I dont wanna be',
     artistName: 'Gavin DeGraw',
     uri: 'spotify:track:4vl2zwXsTmAxgu9iY0g6UK',
-    label: 'Nikolaj',
-    tag: ''
+    label: 'Brygmann',
+    tag: '04-8A-FF-AE-7A-26-81'
   },
   {
     trackName: 'Broken Arrows',
     artistName: 'Avicii',
     uri: 'spotify:track:260jSxvzkFt71ksvkcy2ke',
     label: 'Mikkel',
-    tag: ''
+    tag: '04-85-FF-AE-7A-26-81'
   },
   {
     trackName: 'Rigtige Mænd',
     artistName: 'Stig Rossen',
     uri: 'spotify:track:1KAdOiRwDdDC6ZLMaO8OkO',
     label: 'Mikkel',
-    tag: ''
+    tag: '04-53-64-AF-7A-26-81'
   },
   {
     trackName: 'Cotton Eye Joe',
     artistName: 'Rednex',
     uri: 'spotify:track:06hsdMbBxWGqBO0TV0Zrkf',
     label: 'Mikkel',
-    tag: ''
+    tag: '04-BC-E2-AE-7A-26-81'
   },
   {
     trackName: 'Dont stop believing',
     artistName: 'Journey',
     uri: 'spotify:track:77NNZQSqzLNqh2A9JhLRkg',
     label: 'Mikkel',
-    tag: ''
+    tag: '04-B6-15-AF-7A-26-81'
   },
   {
     trackName: 'Fireball',
     artistName: 'Pitbull ft. John Ryan',
     uri: 'spotify:track:4Y7XAxTANhu3lmnLAzhWJW',
     label: 'Mikkel',
-    tag: ''
+    tag: '04-6C-D7-AE-7A-26-81'
   },
   {
     trackName: 'Hey Ya!',
     artistName: 'OutKast',
     uri: 'spotify:track:2PpruBYCo4H7WOBJ7Q2EwM',
     label: 'Davina',
-    tag: ''
+    tag: '04-78-D7-AE-7A-26-81'
   },
   {
     trackName: 'Wannabe',
     artistName: 'Spice Girls',
     uri: 'spotify:track:1Je1IMUlBXcx1Fz0WE7oPT',
     label: 'Davina',
-    tag: ''
+    tag: '04-76-D7-AE-7A-26-81'
   },
   {
     trackName: 'Love Foolosophy',
     artistName: 'Jamiroquai',
     uri: 'spotify:track:0upgxxew2mVAEctrz08jnf',
     label: 'Davina',
-    tag: ''
+    tag: '04-48-CF-AE-7A-26-81'
   },
   {
     trackName: 'Elskovspony',
     artistName: 'Johnny Deluxe',
     uri: 'spotify:track:0gloEpnKRspgRbp5jI7Bbd',
     label: 'Davina',
-    tag: ''
+    tag: '04-48-EF-AE-7A-26-81'
   },
   {
-    trackName: 'Dirrty',
-    artistName: 'Christina Aguilera ft. Redman',
-    uri: 'spotify:track:59ZTxQo8rBycIXPLUIKvE2',
+    trackName: 'Black Betty',
+    artistName: 'Ram Jam',
+    uri: 'spotify:track:6kooDsorCpWVMGc994XjWN',
     label: 'Davina',
-    tag: ''
+    tag: '04-BD-E2-AE-7A-26-81'
   },
   {
     trackName: 'Cantina Band',
     artistName: 'John Williams',
     uri: 'spotify:track:5ZSAdkQb23NPIcUGt6exdm',
     label: 'Haug',
-    tag: ''
+    tag: '04-93-D1-AE-7A-26-81'
   },
   {
     trackName: 'Stayin Alive - Teddybears Remix',
@@ -420,21 +420,21 @@ export const SPECIAL_SONGS: SpecialSong[] = [
     artistName: 'The Chemical Brothers',
     uri: 'spotify:track:7Ki6lQlcAW565EsHfP8U7S',
     label: 'Haug',
-    tag: ''
+    tag: '04-3D-CF-AE-7A-26-81'
   },
   {
     trackName: 'Tokyo Drift',
     artistName: 'Teriyaki Boyz',
     uri: 'spotify:track:0upFohXrGxIIAjyaJmCkMU',
     label: 'Haug',
-    tag: ''
+    tag: '04-C6-F5-AE-7A-26-81'
   },
   {
     trackName: 'Gi Mig Danmark Tilbage',
     artistName: 'Natasja',
     uri: 'spotify:track:2om86fvyOE6GGtubpMkZpC',
     label: 'Haug',
-    tag: ''
+    tag: '04-72-D7-AE-7A-26-81'
   },
   // {
   //   trackName: '',

@@ -43,7 +43,7 @@ The dashboard provides visual feedback when guests scan NFC cards, creating a co
 - Midnight countdown timer (New Year specific)
 - Kongens Tale countdown (Danish King's Speech tradition)
 - Special song queue detection (highlights songs triggered by NFC cards)
-- Dynamic background rotation synchronized with music changes
+- Automatic background rotation (5-minute intervals with hue shifting)
 
 ## What It Does
 

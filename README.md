@@ -96,10 +96,6 @@ new-year-dashboard/
 │   │   └── specialSongs.ts       # 60 special songs (NFC tag mappings)
 │   ├── pages/
 │   │   └── SpotifyCallback.tsx   # OAuth callback handler
-│   ├── dev/                 # Dev tools (not tracked in git)
-│   │   ├── components/      # WebGL animation components for recording
-│   │   ├── pages/           # BackgroundRecorder, BorderRecorder
-│   │   └── config/          # Recording configurations
 │   ├── App.tsx              # Main application component
 │   └── main.tsx             # Application entry point
 ├── functions/
@@ -107,13 +103,16 @@ new-year-dashboard/
 │       └── spotify-auth.ts  # Firebase Cloud Functions for token exchange
 ├── public/
 │   └── assets/
-│       └── videos/          # Pre-rendered background videos (MP4)
+│       └── videos/
+│           └── README.md    # Video recording instructions (MP4s deployed separately)
 ├── index.html
 ├── package.json
 ├── tsconfig.json
 ├── vite.config.ts
 └── README.md
 ```
+
+**Note**: Dev tools (`src/dev/`) and video files (`*.mp4`) are not tracked in git. Videos were pre-rendered and deployed to Firebase Storage for production.
 
 ## Running Locally
 

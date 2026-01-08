@@ -19,62 +19,25 @@ This dashboard was built to complement a physical NFC-based music controller:
 
 The dashboard provides visual feedback when guests scan NFC cards, creating a complete party experience. Together, they demonstrate a full-stack IoT system from embedded hardware to modern web frontend.
 
-## Technical Highlights
+## Implementation
 
-**Frontend Architecture**:
-- React 18 with TypeScript for type safety
-- Vite for fast development and optimized production builds
-- Real-time polling with adaptive rate limiting (handles Spotify API quotas)
-- Responsive design optimized for 1920×1080 TV display
+**Architecture:**
+- React 18 + TypeScript frontend with Vite build tooling
+- Firebase Hosting (SPA) + Cloud Functions (OAuth token exchange)
+- OAuth 2.0 flow for Spotify API authentication
+- Adaptive API polling: 3s → 5s → 10s intervals with automatic backoff for rate limit responses
 
-**API Integration**:
-- OAuth 2.0 flow with Firebase Cloud Functions for secure token exchange
-- Spotify Web API for playback state and queue information
-- Home Assistant REST API for special song detection (NFC tag integration)
-- Intelligent rate limiting with exponential backoff (3s → 5s → 10s intervals)
+**Key Features:**
+- Large album artwork display optimized for 1920×1080 TV viewing
+- Special song queue highlighting (60 songs mapped to NFC tags from hardware controller)
+- Event-specific countdowns: Midnight and Kongens Tale (Danish King's Speech)
+- Automated background rotation every 5 minutes with dynamic hue shifting
+- WebGL animations pre-rendered to MP4 videos, served from CDN for TV playback
 
-**Performance Optimization**:
-- WebGL animation pre-rendering: Record complex animations on powerful machine → convert to MP4
-- TV-optimized video playback instead of real-time WebGL rendering
-- Seamless video looping with CSS crossfade transitions
-- Dynamic hue shifting for color variety without re-encoding videos
-
-**Event-Driven Features**:
-- Midnight countdown timer (New Year specific)
-- Kongens Tale countdown (Danish King's Speech tradition)
-- Special song queue detection (highlights songs triggered by NFC cards)
-- Automatic background rotation (5-minute intervals with hue shifting)
-
-## What It Does
-
-Built for New Year 2025 celebration with 12 guests, displaying:
-- **Now Playing**: Large album artwork with artist and track info visible across room
-- **Special Songs**: Highlights tracks queued via NFC cards (60 songs, 12 guests)
-- **Dynamic Backgrounds**: Rotating video backgrounds with hue shifting
-- **Countdown Timers**: Midnight and Kongens Tale (King's Speech) countdowns
-- **Real-time Sync**: Updates every 3-10 seconds based on API rate limits
-
-## Deployment
-
-The dashboard was deployed for New Year 2025 using the following setup:
-
-**Infrastructure**:
-- **Frontend**: Firebase Hosting (React SPA)
-- **Backend**: Firebase Cloud Functions (OAuth token exchange)
-- **Display**: Chromecast with Google TV running Chromium in kiosk mode
-- **Resolution**: 1920×1080 fullscreen on living room TV
-
-**Integration**:
-- Spotify Web API for real-time playback data
-- Home Assistant REST API for NFC tag detection
-- Two NFC Party Controller devices (living room + kitchen)
-- 60 pre-configured special songs mapped to NFC tags
-
-**Performance**:
-- Background videos pre-rendered and uploaded to Firebase Storage
-- Videos played from CDN instead of real-time WebGL rendering
-- Adaptive polling (3-10s) to stay within Spotify API rate limits
-- Automatic OAuth token refresh via Cloud Functions
+**Deployment (New Year 2025):**
+- Display: Chromecast with Google TV running Chromium in kiosk mode
+- Integration: Two NFC Party Controller devices (living room + kitchen) via Home Assistant API
+- Video delivery: Pre-rendered backgrounds uploaded to Firebase Storage
 
 ## Project Structure
 
@@ -138,14 +101,6 @@ To run the dashboard locally (requires Spotify Developer credentials):
 4. **Visit** `http://localhost:5173` and authenticate with Spotify
 
 **Note**: Special song detection requires Home Assistant integration with NFC Party Controller hardware. Without it, the dashboard will still display now playing information and backgrounds.
-
-## Development Notes
-
-**Rate Limiting**: Implements adaptive polling (3s → 5s → 10s) with automatic backoff to handle Spotify API rate limits (429 responses).
-
-**TypeScript Types**: Full type coverage for Spotify API entities (playback state, tracks, queue, tokens).
-
-**Build**: Vite for fast development and optimized production builds with automatic code splitting.
 
 ## License
 

@@ -1,5 +1,6 @@
-// Special songs that will be highlighted in the queue
-// You can identify songs by either Spotify URI or by track name + artist combination
+// Special songs configuration for New Year 2025 party
+// 12 guests, 60 songs total, each with NFC tag ID from party controller
+// Songs are highlighted in the queue when triggered via NFC cards
 
 export interface SpecialSong {
   // Option 1: Use Spotify URI (most accurate)
@@ -435,12 +436,5 @@ export const SPECIAL_SONGS: SpecialSong[] = [
     uri: 'spotify:track:2om86fvyOE6GGtubpMkZpC',
     label: 'Haug',
     tag: '04-72-D7-AE-7A-26-81'
-  },
-  // {
-  //   trackName: '',
-  //   artistName: '',
-  //   uri: '',
-  //   label: '',
-  //   tag: ''
-  // },
+  }
 ];

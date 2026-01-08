@@ -1,24 +1,58 @@
-# New Year's Party Dashboard
+# New Year Dashboard
 
-A real-time music visualization dashboard for parties, designed to run on a TV. Connects directly to Spotify to display currently playing music with dynamic animated backgrounds and countdown timers.
+> Real-time music visualization for New Year 2025 celebration
 
-## Features
+Event dashboard built for New Year 2025 party, displaying real-time Spotify playback with dynamic backgrounds and special song detection. Integrates with NFC Party Controller hardware for a complete smart home party experience.
 
-- **Large Album Art Display**: Prominent currently playing track with album art visible from across the room
-- **Real-Time Spotify Integration**: Direct Spotify API integration with OAuth authentication
-- **Dynamic Backgrounds**: Animated backgrounds that change based on what's playing
-- **Special Song Detection**: Automatically detects special songs and displays them in the queue
-- **Countdown Timers**: Midnight countdown and Kongens Tale (King's Speech) countdown for New Year's Eve
-- **Adaptive Rate Limiting**: Smart polling with automatic backoff to stay within Spotify API limits
-- **TV-Optimized UI**: Designed for 1920x1080 fullscreen display with dark party theme
+**Deployed**: New Year 2025 (12 guests)
+**Tech Stack**: React 18, TypeScript, Vite, Spotify Web API, Home Assistant API, Firebase Functions
 
-## Tech Stack
+## Related Project: Hardware Integration
 
-- React 18 + TypeScript
-- Vite for fast development and building
-- Spotify Web API with OAuth 2.0 authentication
-- Firebase Cloud Functions for secure token exchange
-- Modern CSS with gradient effects and animations
+This dashboard was built to complement a physical NFC-based music controller:
+
+**[NFC Party Controller](https://github.com/Haugenau20/nfc-party-controller)** - Battery-powered ESP32 hardware:
+- Tap NFC cards to trigger playlists
+- Physical volume control and pause button
+- Two devices (living room + kitchen)
+- Built with ESPHome and Home Assistant
+
+The dashboard provides visual feedback when guests scan NFC cards, creating a complete party experience. Together, they demonstrate a full-stack IoT system from embedded hardware to modern web frontend.
+
+## Technical Highlights
+
+**Frontend Architecture**:
+- React 18 with TypeScript for type safety
+- Vite for fast development and optimized production builds
+- Real-time polling with adaptive rate limiting (handles Spotify API quotas)
+- Responsive design optimized for 1920×1080 TV display
+
+**API Integration**:
+- OAuth 2.0 flow with Firebase Cloud Functions for secure token exchange
+- Spotify Web API for playback state and queue information
+- Home Assistant REST API for special song detection (NFC tag integration)
+- Intelligent rate limiting with exponential backoff (3s → 5s → 10s intervals)
+
+**Performance Optimization**:
+- WebGL animation pre-rendering: Record complex animations on powerful machine → convert to MP4
+- TV-optimized video playback instead of real-time WebGL rendering
+- Seamless video looping with CSS crossfade transitions
+- Dynamic hue shifting for color variety without re-encoding videos
+
+**Event-Driven Features**:
+- Midnight countdown timer (New Year specific)
+- Kongens Tale countdown (Danish King's Speech tradition)
+- Special song queue detection (highlights songs triggered by NFC cards)
+- Dynamic background rotation synchronized with music changes
+
+## What It Does
+
+Built for New Year 2025 celebration with 12 guests, displaying:
+- **Now Playing**: Large album artwork with artist and track info visible across room
+- **Special Songs**: Highlights tracks queued via NFC cards (60 songs, 12 guests)
+- **Dynamic Backgrounds**: Rotating video backgrounds with hue shifting
+- **Countdown Timers**: Midnight and Kongens Tale (King's Speech) countdowns
+- **Real-time Sync**: Updates every 3-10 seconds based on API rate limits
 
 ## Prerequisites
 
@@ -146,25 +180,33 @@ Create a systemd service or add to `/etc/xdg/lxsession/LXDE-pi/autostart`:
 ```
 new-year-dashboard/
 ├── src/
-│   ├── components/          # React components (NowPlaying, QueueDisplay, etc.)
+│   ├── components/          # React components (NowPlaying, QueueDisplay, AnimatedBackground)
 │   ├── hooks/
 │   │   ├── useSpotify.ts         # Spotify playback polling hook
+│   │   ├── useNFCQueue.ts        # NFC queue integration with Home Assistant
 │   │   └── useBackgroundRotation.ts  # Background animation management
 │   ├── services/
-│   │   └── spotify.ts            # Spotify API service
+│   │   ├── spotify.ts            # Spotify API service
+│   │   └── homeAssistant.ts      # Home Assistant API integration
 │   ├── types/
 │   │   └── spotify.ts            # TypeScript type definitions
 │   ├── config/
-│   │   ├── backgrounds.ts        # Background configurations
-│   │   └── specialSongs.ts       # Special song detection
+│   │   ├── backgrounds.ts        # Background video configurations
+│   │   └── specialSongs.ts       # 60 special songs (NFC tag mappings)
 │   ├── pages/
-│   │   ├── SpotifyCallback.tsx   # OAuth callback handler
-│   │   └── BackgroundRecorder.tsx # Dev tool for recording backgrounds
+│   │   └── SpotifyCallback.tsx   # OAuth callback handler
+│   ├── dev/                 # Dev tools (not tracked in git)
+│   │   ├── components/      # WebGL animation components for recording
+│   │   ├── pages/           # BackgroundRecorder, BorderRecorder
+│   │   └── config/          # Recording configurations
 │   ├── App.tsx              # Main application component
 │   └── main.tsx             # Application entry point
 ├── functions/
 │   └── src/
 │       └── spotify-auth.ts  # Firebase Cloud Functions for token exchange
+├── public/
+│   └── assets/
+│       └── videos/          # Pre-rendered background videos (MP4)
 ├── index.html
 ├── package.json
 ├── tsconfig.json

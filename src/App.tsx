@@ -8,8 +8,8 @@ import { AnimatedBackground } from './components/AnimatedBackground';
 import { MidnightCountdown } from './components/MidnightCountdown';
 import { KongensTaleCountdown } from './components/KongensTaleCountdown';
 import { SpotifyCallback } from './pages/SpotifyCallback';
-import { BackgroundRecorder } from './pages/BackgroundRecorder';
-import { BorderRecorder } from './pages/BorderRecorder';
+import { BackgroundRecorder } from './dev/pages/BackgroundRecorder';
+import { BorderRecorder } from './dev/pages/BorderRecorder';
 import { SpotifyService } from './services/spotify';
 import { HomeAssistantService } from './services/homeAssistant';
 import { TRANSITION_DURATION_MS } from './config/backgrounds';
@@ -47,6 +47,8 @@ function App() {
     } else if (pathname === '/border-record') {
       setIsBorderRecordPage(true);
     } else if (pathname === '/secondary') {
+      // Secondary display mode: Shows music playback without NFC queue
+      // Used for additional displays that don't need special song highlighting
       setIsSecondaryPage(true);
     }
   }, []);

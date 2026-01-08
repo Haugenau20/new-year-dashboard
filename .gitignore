@@ -143,3 +143,6 @@ public/assets/videos/*.mp4
 
 # Generated Home Assistant automations
 home-assistant-automations.txt
+
+# Dev tools and animation components (used for recording backgrounds)
+src/dev/

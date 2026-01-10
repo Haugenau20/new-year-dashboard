@@ -219,7 +219,11 @@ function App() {
           {/* Top Left - Special Songs */}
           <div className="absolute top-8 left-8 sm-dashboard:top-4 sm-dashboard:left-4 pointer-events-auto">
             {spotifyState.isAuthenticated && !isSecondaryPage && (
-              <QueueDisplay queue={spotifyState.queue} nfcQueue={nfcQueue} />
+              <QueueDisplay
+                queue={spotifyState.queue}
+                nfcQueue={nfcQueue}
+                haAvailable={haService !== null}
+              />
             )}
           </div>
 

@@ -8,8 +8,6 @@ import { AnimatedBackground } from './components/AnimatedBackground';
 import { MidnightCountdown } from './components/MidnightCountdown';
 import { KongensTaleCountdown } from './components/KongensTaleCountdown';
 import { SpotifyCallback } from './pages/SpotifyCallback';
-import { BackgroundRecorder } from './pages/BackgroundRecorder';
-import { BorderRecorder } from './pages/BorderRecorder';
 import { SpotifyService } from './services/spotify';
 import { HomeAssistantService } from './services/homeAssistant';
 import { TRANSITION_DURATION_MS } from './config/backgrounds';
@@ -25,8 +23,6 @@ function App() {
   const [spotifyService, setSpotifyService] = useState<SpotifyService | null>(null);
   const [haService, setHaService] = useState<HomeAssistantService | null>(null);
   const [isCallback, setIsCallback] = useState(false);
-  const [isDevPage, setIsDevPage] = useState(false);
-  const [isBorderRecordPage, setIsBorderRecordPage] = useState(false);
   const [isSecondaryPage, setIsSecondaryPage] = useState(false);
   const [configError, setConfigError] = useState<string | null>(null);
 
@@ -42,11 +38,9 @@ function App() {
 
     if (pathname === '/callback') {
       setIsCallback(true);
-    } else if (pathname === '/dev') {
-      setIsDevPage(true);
-    } else if (pathname === '/border-record') {
-      setIsBorderRecordPage(true);
     } else if (pathname === '/secondary') {
+      // Secondary display mode: Shows music playback without NFC queue
+      // Used for additional displays that don't need special song highlighting
       setIsSecondaryPage(true);
     }
   }, []);
@@ -108,14 +102,6 @@ function App() {
         onError={handleSpotifyCallbackError}
       />
     );
-  }
-
-  if (isDevPage) {
-    return <BackgroundRecorder />;
-  }
-
-  if (isBorderRecordPage) {
-    return <BorderRecorder />;
   }
 
   // Show configuration error if environment variables are missing
@@ -217,7 +203,11 @@ function App() {
           {/* Top Left - Special Songs */}
           <div className="absolute top-8 left-8 sm-dashboard:top-4 sm-dashboard:left-4 pointer-events-auto">
             {spotifyState.isAuthenticated && !isSecondaryPage && (
-              <QueueDisplay queue={spotifyState.queue} nfcQueue={nfcQueue} />
+              <QueueDisplay
+                queue={spotifyState.queue}
+                nfcQueue={nfcQueue}
+                haAvailable={haService !== null}
+              />
             )}
           </div>
 

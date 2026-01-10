@@ -6,6 +6,7 @@ import DiscoBorder from './DiscoBorder';
 interface QueueDisplayProps {
   queue: SpotifyQueue | null;
   nfcQueue: string[]; // URIs of songs queued via NFC
+  haAvailable: boolean; // Whether Home Assistant connection is available
 }
 
 function isSpecialSong(track: SpotifyTrack): { isSpecial: boolean; label?: string } {
@@ -31,15 +32,21 @@ function isSpecialSong(track: SpotifyTrack): { isSpecial: boolean; label?: strin
   return { isSpecial: false };
 }
 
-export const QueueDisplay = memo(function QueueDisplay({ queue, nfcQueue }: QueueDisplayProps) {
+export const QueueDisplay = memo(function QueueDisplay({ queue, nfcQueue, haAvailable }: QueueDisplayProps) {
   const upcomingTracks = queue?.queue.slice(0, 5) || [];
 
-  // Only show songs that are BOTH:
-  // 1. In the special songs list
-  // 2. In the NFC queue tracker (queued via NFC)
+  // Filter special songs based on HA availability:
+  // - If HA is available: Only show songs queued via NFC (cross-reference with nfcQueue)
+  // - If HA is unavailable: Show all special songs in the queue (fallback for devices like Xbox)
   const specialSongs = upcomingTracks.filter(track => {
     const { isSpecial } = isSpecialSong(track);
-    return isSpecial && nfcQueue.includes(track.uri);
+    if (!isSpecial) return false;
+
+    // Fallback: If HA is not available, show all special songs
+    if (!haAvailable) return true;
+
+    // Normal behavior: Only show if in NFC queue
+    return nfcQueue.includes(track.uri);
   });
 
   // Get the first special song and any additional ones

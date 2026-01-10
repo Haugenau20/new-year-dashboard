@@ -146,3 +146,4 @@ home-assistant-automations.txt
 
 # Dev tools and animation components (used for recording backgrounds)
 src/dev/
+src/config/backgrounds.recording.ts

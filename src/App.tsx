@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, lazy, Suspense } from 'react';
 import { useSpotify } from './hooks/useSpotify';
 import { useNFCQueue } from './hooks/useNFCQueue';
 import { useBackgroundRotation } from './hooks/useBackgroundRotation';
@@ -8,11 +8,17 @@ import { AnimatedBackground } from './components/AnimatedBackground';
 import { MidnightCountdown } from './components/MidnightCountdown';
 import { KongensTaleCountdown } from './components/KongensTaleCountdown';
 import { SpotifyCallback } from './pages/SpotifyCallback';
-import { BackgroundRecorder } from './dev/pages/BackgroundRecorder';
-import { BorderRecorder } from './dev/pages/BorderRecorder';
 import { SpotifyService } from './services/spotify';
 import { HomeAssistantService } from './services/homeAssistant';
 import { TRANSITION_DURATION_MS } from './config/backgrounds';
+
+// Lazy load dev tools (only available locally, not in production)
+const BackgroundRecorder = lazy(() =>
+  import('./dev/pages/BackgroundRecorder').then(m => ({ default: m.BackgroundRecorder })).catch(() => ({ default: () => <div>Dev tools not available</div> }))
+);
+const BorderRecorder = lazy(() =>
+  import('./dev/pages/BorderRecorder').then(m => ({ default: m.BorderRecorder })).catch(() => ({ default: () => <div>Dev tools not available</div> }))
+);
 
 // Load configuration from environment variables
 const SPOTIFY_CLIENT_ID = import.meta.env.VITE_SPOTIFY_CLIENT_ID || '';
@@ -113,11 +119,19 @@ function App() {
   }
 
   if (isDevPage) {
-    return <BackgroundRecorder />;
+    return (
+      <Suspense fallback={<div className="flex items-center justify-center min-h-screen bg-black text-white">Loading...</div>}>
+        <BackgroundRecorder />
+      </Suspense>
+    );
   }
 
   if (isBorderRecordPage) {
-    return <BorderRecorder />;
+    return (
+      <Suspense fallback={<div className="flex items-center justify-center min-h-screen bg-black text-white">Loading...</div>}>
+        <BorderRecorder />
+      </Suspense>
+    );
   }
 
   // Show configuration error if environment variables are missing

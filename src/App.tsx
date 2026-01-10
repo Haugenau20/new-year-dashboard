@@ -1,4 +1,4 @@
-import { useState, useEffect, lazy, Suspense } from 'react';
+import { useState, useEffect } from 'react';
 import { useSpotify } from './hooks/useSpotify';
 import { useNFCQueue } from './hooks/useNFCQueue';
 import { useBackgroundRotation } from './hooks/useBackgroundRotation';
@@ -12,16 +12,6 @@ import { SpotifyService } from './services/spotify';
 import { HomeAssistantService } from './services/homeAssistant';
 import { TRANSITION_DURATION_MS } from './config/backgrounds';
 
-// Lazy load dev tools (only available locally, not in production)
-// @ts-expect-error - Dev tools are gitignored and only available in local development
-const BackgroundRecorder = lazy(() =>
-  import('./dev/pages/BackgroundRecorder').then(m => ({ default: m.BackgroundRecorder })).catch(() => ({ default: () => <div>Dev tools not available</div> }))
-);
-// @ts-expect-error - Dev tools are gitignored and only available in local development
-const BorderRecorder = lazy(() =>
-  import('./dev/pages/BorderRecorder').then(m => ({ default: m.BorderRecorder })).catch(() => ({ default: () => <div>Dev tools not available</div> }))
-);
-
 // Load configuration from environment variables
 const SPOTIFY_CLIENT_ID = import.meta.env.VITE_SPOTIFY_CLIENT_ID || '';
 const SPOTIFY_REDIRECT_URI = import.meta.env.VITE_SPOTIFY_REDIRECT_URI || 'http://127.0.0.1:3001/callback';
@@ -33,8 +23,6 @@ function App() {
   const [spotifyService, setSpotifyService] = useState<SpotifyService | null>(null);
   const [haService, setHaService] = useState<HomeAssistantService | null>(null);
   const [isCallback, setIsCallback] = useState(false);
-  const [isDevPage, setIsDevPage] = useState(false);
-  const [isBorderRecordPage, setIsBorderRecordPage] = useState(false);
   const [isSecondaryPage, setIsSecondaryPage] = useState(false);
   const [configError, setConfigError] = useState<string | null>(null);
 
@@ -50,10 +38,6 @@ function App() {
 
     if (pathname === '/callback') {
       setIsCallback(true);
-    } else if (pathname === '/dev') {
-      setIsDevPage(true);
-    } else if (pathname === '/border-record') {
-      setIsBorderRecordPage(true);
     } else if (pathname === '/secondary') {
       // Secondary display mode: Shows music playback without NFC queue
       // Used for additional displays that don't need special song highlighting
@@ -117,22 +101,6 @@ function App() {
         onSuccess={handleSpotifyCallback}
         onError={handleSpotifyCallbackError}
       />
-    );
-  }
-
-  if (isDevPage) {
-    return (
-      <Suspense fallback={<div className="flex items-center justify-center min-h-screen bg-black text-white">Loading...</div>}>
-        <BackgroundRecorder />
-      </Suspense>
-    );
-  }
-
-  if (isBorderRecordPage) {
-    return (
-      <Suspense fallback={<div className="flex items-center justify-center min-h-screen bg-black text-white">Loading...</div>}>
-        <BorderRecorder />
-      </Suspense>
     );
   }
 

@@ -13,9 +13,11 @@ import { HomeAssistantService } from './services/homeAssistant';
 import { TRANSITION_DURATION_MS } from './config/backgrounds';
 
 // Lazy load dev tools (only available locally, not in production)
+// @ts-expect-error - Dev tools are gitignored and only available in local development
 const BackgroundRecorder = lazy(() =>
   import('./dev/pages/BackgroundRecorder').then(m => ({ default: m.BackgroundRecorder })).catch(() => ({ default: () => <div>Dev tools not available</div> }))
 );
+// @ts-expect-error - Dev tools are gitignored and only available in local development
 const BorderRecorder = lazy(() =>
   import('./dev/pages/BorderRecorder').then(m => ({ default: m.BorderRecorder })).catch(() => ({ default: () => <div>Dev tools not available</div> }))
 );
